@@ -9,6 +9,7 @@ import liquibase.statement.PrimaryKeyConstraint;
 import liquibase.statement.core.AddColumnStatement;
 import static org.junit.Assert.*;
 
+@Ignore
 public class AddColumnGeneratorTest extends AbstractSqlGeneratorTest<AddColumnStatement> {
 
     public AddColumnGeneratorTest() throws Exception {

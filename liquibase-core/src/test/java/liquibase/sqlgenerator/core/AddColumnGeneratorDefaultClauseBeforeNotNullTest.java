@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.Ignore;
 
+@Ignore
 public class AddColumnGeneratorDefaultClauseBeforeNotNullTest extends AddColumnGeneratorTest {
     public AddColumnGeneratorDefaultClauseBeforeNotNullTest() throws Exception {
         super(new AddColumnGeneratorDefaultClauseBeforeNotNull());
