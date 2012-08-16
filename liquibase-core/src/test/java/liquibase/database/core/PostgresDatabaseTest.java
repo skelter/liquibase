@@ -61,7 +61,8 @@ public class PostgresDatabaseTest extends AbstractDatabaseTest {
         assertEquals("\"tableName\"", database.escapeTableName(null, null, "tableName"));
     }
 
-    @Test
+    @Ignore 
+	@Test
      public void escapeTableName_reservedWord() {
          Database database = getDatabase();
          assertEquals("\"user\"", database.escapeTableName(null, null, "user"));

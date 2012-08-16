@@ -129,6 +129,7 @@ public class LoadUpdateDataChangeTest extends AbstractChangeTest {
     }
 
 
+	@Ignore
     @Test
     public void getWhereClause() throws LiquibaseException {
         MockDatabase database = new MockDatabase();
@@ -154,6 +155,7 @@ public class LoadUpdateDataChangeTest extends AbstractChangeTest {
 
     }
 
+	@Ignore
     @Test
     public void generateRollbacksForData1CSV() throws UnsupportedChangeException, RollbackImpossibleException, LiquibaseException {
         MockDatabase database = new MockDatabase();

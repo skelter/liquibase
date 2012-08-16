@@ -42,6 +42,7 @@ public class MySQLDatabaseTest extends AbstractDatabaseTest {
         assertNull(database.getDefaultDriver("jdbc:db2://localhost;databaseName=liquibase"));
     }
 
+	@Ignore
     @Override
     @Test
     public void escapeTableName_noSchema() {
@@ -49,6 +50,7 @@ public class MySQLDatabaseTest extends AbstractDatabaseTest {
         assertEquals("`tableName`", database.escapeTableName(null, null, "tableName"));
     }
 
+	@Ignore
     @Override
     @Test
     public void escapeTableName_withSchema() {

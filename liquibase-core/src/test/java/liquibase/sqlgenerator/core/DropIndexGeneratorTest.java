@@ -51,6 +51,7 @@ public class DropIndexGeneratorTest {
 ////    }
 
 
+	@Ignore
 	@Test
 	public void shouldDropIndexInPostgreSQL() throws Exception {
 		DropIndexGenerator dropIndexGenerator = new DropIndexGenerator();
