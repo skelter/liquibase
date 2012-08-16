@@ -14,8 +14,7 @@ public class AddColumnGeneratorDefaultClauseBeforeNotNullTest extends AddColumnG
         super(new AddColumnGeneratorDefaultClauseBeforeNotNull());
     }
 
-	@Ignore
-    @Test
+	@Ignore @Test
     public void validate_noAutoIncrementWithDerby() {
         ValidationErrors validationErrors = generatorUnderTest.validate(new AddColumnStatement(null, "table_name", "column_name", "int", null, new AutoIncrementConstraint("column_name")), new DerbyDatabase(), new MockSqlGeneratorChain());
         assertTrue(validationErrors.getErrorMessages().contains("Cannot add an identity column to a database"));

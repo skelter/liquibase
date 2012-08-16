@@ -129,8 +129,7 @@ public class LoadUpdateDataChangeTest extends AbstractChangeTest {
     }
 
 
-	@Ignore
-    @Test
+	@Ignore @Test
     public void getWhereClause() throws LiquibaseException {
         MockDatabase database = new MockDatabase();
         LoadUpdateDataChange change = new LoadUpdateDataChange();

@@ -24,8 +24,7 @@ public class ValidatingVisitorTest {
     }
 
 
-	@Ignore
-    @Test
+	@Ignore @Test
     public void visit_successful() {
         CreateTableChange change1 = new CreateTableChange();
         change1.setTableName("table1");

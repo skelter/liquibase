@@ -38,10 +38,9 @@ public class H2DatabaseTest extends AbstractDatabaseTest {
 
         assertNull(database.getDefaultDriver("jdbc:db2://localhost;databaseName=liquibase"));
     }
-
-	@Ignore
+	
     @Override
-    @Test
+    @Ignore @Test
     public void escapeTableName_noSchema() {
         Database database = getDatabase();
         assertEquals("tableName", database.escapeTableName(null, null, "tableName"));
