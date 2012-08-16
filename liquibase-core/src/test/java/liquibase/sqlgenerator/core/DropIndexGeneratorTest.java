@@ -11,6 +11,7 @@ import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.statement.core.DropIndexStatement;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -51,7 +52,8 @@ public class DropIndexGeneratorTest {
 ////    }
 
 
-	@Ignore @Test
+	@Ignore("Test Failing.  Skipping")
+	@Test
 	public void shouldDropIndexInPostgreSQL() throws Exception {
 		DropIndexGenerator dropIndexGenerator = new DropIndexGenerator();
 		DropIndexStatement statement = new DropIndexStatement("indexName", "defaultCatalog", "defaultSchema", "aTable", null);

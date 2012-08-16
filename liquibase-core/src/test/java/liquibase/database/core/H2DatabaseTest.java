@@ -5,6 +5,7 @@ import liquibase.database.Database;
 import org.junit.Assert;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.junit.Ignore;
 
 public class H2DatabaseTest extends AbstractDatabaseTest {
 
@@ -38,9 +39,10 @@ public class H2DatabaseTest extends AbstractDatabaseTest {
 
         assertNull(database.getDefaultDriver("jdbc:db2://localhost;databaseName=liquibase"));
     }
-	
+
+	@Ignore("Test Failing.  Skipping")
     @Override
-    @Ignore @Test
+    @Test
     public void escapeTableName_noSchema() {
         Database database = getDatabase();
         assertEquals("tableName", database.escapeTableName(null, null, "tableName"));

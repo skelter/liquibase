@@ -14,6 +14,7 @@ import liquibase.statement.core.InsertOrUpdateStatement;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -129,7 +130,8 @@ public class LoadUpdateDataChangeTest extends AbstractChangeTest {
     }
 
 
-	@Ignore @Test
+	@Ignore("Test Failing.  Skipping")
+    @Test
     public void getWhereClause() throws LiquibaseException {
         MockDatabase database = new MockDatabase();
         LoadUpdateDataChange change = new LoadUpdateDataChange();
@@ -154,7 +156,7 @@ public class LoadUpdateDataChangeTest extends AbstractChangeTest {
 
     }
 
-	@Ignore
+	@Ignore("Test Failing.  Skipping")
     @Test
     public void generateRollbacksForData1CSV() throws UnsupportedChangeException, RollbackImpossibleException, LiquibaseException {
         MockDatabase database = new MockDatabase();

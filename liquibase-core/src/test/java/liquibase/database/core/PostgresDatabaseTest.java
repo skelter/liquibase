@@ -5,6 +5,7 @@ import liquibase.database.Database;
 import org.junit.Assert;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.junit.Ignore;
 
 /**
  * Tests for {@link PostgresDatabase}
@@ -61,7 +62,8 @@ public class PostgresDatabaseTest extends AbstractDatabaseTest {
         assertEquals("\"tableName\"", database.escapeTableName(null, null, "tableName"));
     }
 
-    @Ignore @Test
+    @Ignore("Test Failing.  Skipping") 
+	@Test
      public void escapeTableName_reservedWord() {
          Database database = getDatabase();
          assertEquals("\"user\"", database.escapeTableName(null, null, "user"));

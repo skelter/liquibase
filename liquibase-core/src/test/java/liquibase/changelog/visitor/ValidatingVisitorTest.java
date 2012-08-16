@@ -9,6 +9,7 @@ import liquibase.exception.SetupException;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.ArrayList;
 
@@ -24,7 +25,8 @@ public class ValidatingVisitorTest {
     }
 
 
-	@Ignore @Test
+	@Ignore("Test Failing.  Skipping")
+    @Test
     public void visit_successful() {
         CreateTableChange change1 = new CreateTableChange();
         change1.setTableName("table1");

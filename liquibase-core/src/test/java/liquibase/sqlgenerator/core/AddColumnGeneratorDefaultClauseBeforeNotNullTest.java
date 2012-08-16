@@ -8,13 +8,15 @@ import liquibase.statement.AutoIncrementConstraint;
 import liquibase.statement.core.AddColumnStatement;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.junit.Ignore;
 
 public class AddColumnGeneratorDefaultClauseBeforeNotNullTest extends AddColumnGeneratorTest {
     public AddColumnGeneratorDefaultClauseBeforeNotNullTest() throws Exception {
         super(new AddColumnGeneratorDefaultClauseBeforeNotNull());
     }
 
-	@Ignore @Test
+	@Ignore("Test Failing.  Skipping")
+    @Test
     public void validate_noAutoIncrementWithDerby() {
         ValidationErrors validationErrors = generatorUnderTest.validate(new AddColumnStatement(null, "table_name", "column_name", "int", null, new AutoIncrementConstraint("column_name")), new DerbyDatabase(), new MockSqlGeneratorChain());
         assertTrue(validationErrors.getErrorMessages().contains("Cannot add an identity column to a database"));
