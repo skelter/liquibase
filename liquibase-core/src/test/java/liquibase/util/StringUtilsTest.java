@@ -6,6 +6,8 @@ import org.junit.Ignore;
 
 public class StringUtilsTest {
 
+    String newline = System.getProperty("line.separator");
+
     @Test
      public void windowsDelimiter() {
          String sql = "/*\n" +
@@ -68,7 +70,7 @@ public class StringUtilsTest {
     @Test
     public void singleLineMultipleComments() {
         String sql = "Some text" ;
-        String comment = " -- with comment";
+        String comment = "-- with comment";
         String totalLine=sql + comment + "\n"+ sql + comment ;
         String result = StringUtils.stripComments(totalLine);
         
@@ -79,11 +81,11 @@ public class StringUtilsTest {
     @Test
     public void singleLineWithFollowupLine() {
         String sql = "Some text" ;
-        String comment = " -- with comment";
-        String totalLine=sql + comment + "\n" + sql ;
+        String comment = "-- with comment";
+        String totalLine=sql + comment + newline + sql ;
         String result = StringUtils.stripComments(totalLine);
         
-        assertEquals(sql + "\n" + sql,result);
+        assertEquals(sql + newline + sql,result);
     }
     
     @Test

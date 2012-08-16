@@ -1,7 +1,5 @@
 package liquibase.database.structure;
 
-import liquibase.database.AbstractDatabase;
-import liquibase.database.Database;
 import liquibase.util.StringUtils;
 
 public class Schema implements DatabaseObject {
@@ -41,10 +39,6 @@ public class Schema implements DatabaseObject {
         return name;
     }
     
-    public String getName(Database database) {
-        return database.correctSchemaName(getName());
-    }
-
     public Schema getSchema() {
         return this;
     }
@@ -77,14 +71,6 @@ public class Schema implements DatabaseObject {
         return catalog.getName();
     }
     
-    public String getCatalogName(Database database) {
-        return catalog.getName(database);
-    }
-
-    public Schema clone(Database database) {
-        return new Schema(catalog.getName(database), getName(database));
-    }
-
     @Override
     public String toString() {
         return catalog.getName()+"."+name;

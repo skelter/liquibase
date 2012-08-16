@@ -59,7 +59,7 @@ public class StandardDiffGenerator implements DiffGenerator {
 
     protected void checkVersionInfo(DatabaseSnapshot referenceSnapshot, DatabaseSnapshot comparisonSnapshot, DiffResult diffResult) throws DatabaseException {
 
-        if (comparisonSnapshot != null) {
+        if (comparisonSnapshot != null && comparisonSnapshot.getDatabase() != null) {
             diffResult.setProductName(new StringDiff(referenceSnapshot.getDatabase().getDatabaseProductName(), comparisonSnapshot.getDatabase().getDatabaseProductName()));
             diffResult.setProductVersion(new StringDiff(referenceSnapshot.getDatabase().getDatabaseProductVersion(), comparisonSnapshot.getDatabase().getDatabaseProductVersion()));
         }
@@ -69,9 +69,15 @@ public class StandardDiffGenerator implements DiffGenerator {
     protected <T extends DatabaseObject> void compareObjectType(Class<T> type, DatabaseSnapshot referenceSnapshot, DatabaseSnapshot comparisonSnapshot, DiffResult diffResult) {
 
         for (DiffControl.SchemaComparison schemaComparison : diffResult.getDiffControl().getSchemaComparisons()) {
-            Schema referenceSchema = schemaComparison.getReferenceSchema().clone(referenceSnapshot.getDatabase());
-            Schema comparisonSchema = schemaComparison.getComparisonSchema().clone(comparisonSnapshot.getDatabase());
+            Schema referenceSchema = referenceSnapshot.getDatabase().correctSchema(schemaComparison.getReferenceSchema());
+            Schema comparisonSchema = null;
+            if (comparisonSnapshot.getDatabase() != null) {
+                comparisonSchema = comparisonSnapshot.getDatabase().correctSchema(schemaComparison.getComparisonSchema());
+            }
             for (T referenceObject : referenceSnapshot.getDatabaseObjects(referenceSchema, type)) {
+                if (referenceObject instanceof Table && referenceSnapshot.getDatabase().isLiquibaseTable(referenceObject.getName())) {
+                    continue;
+                }
                 if (comparisonSnapshot.contains(comparisonSchema, referenceObject)) {
                     if (!comparisonSnapshot.matches(comparisonSchema, referenceObject)) {
                         diffResult.getObjectDiff(type).addChanged(referenceObject);
@@ -82,6 +88,9 @@ public class StandardDiffGenerator implements DiffGenerator {
             }
 
             for (T targetObject : comparisonSnapshot.getDatabaseObjects(comparisonSchema, type)) {
+                if (targetObject instanceof Table && comparisonSnapshot.getDatabase().isLiquibaseTable(targetObject.getName())) {
+                    continue;
+                }
                 if (!referenceSnapshot.contains(referenceSchema, targetObject)) {
                     diffResult.getObjectDiff(type).addUnexpected(targetObject);
                 }

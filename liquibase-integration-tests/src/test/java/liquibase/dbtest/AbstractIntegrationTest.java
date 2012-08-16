@@ -9,6 +9,7 @@ import liquibase.database.structure.View;
 import liquibase.datatype.DataTypeFactory;
 import liquibase.diff.DiffControl;
 import liquibase.diff.DiffGeneratorFactory;
+import liquibase.diff.output.DiffOutputConfig;
 import liquibase.diff.output.DiffToChangeLog;
 import liquibase.diff.output.DiffToPrintStream;
 import liquibase.exception.ChangeLogParseException;
@@ -121,6 +122,8 @@ public abstract class AbstractIntegrationTest {
             database.dropDatabaseObjects(Schema.DEFAULT);
             if (database.supportsSchemas()) {
                 database.dropDatabaseObjects(new Schema(DatabaseTestContext.ALT_CATALOG, DatabaseTestContext.ALT_SCHEMA));
+            } else if (database.supportsCatalogs()) {
+                database.dropDatabaseObjects(new Schema(DatabaseTestContext.ALT_SCHEMA, null));
             }
             database.commit();
             DatabaseSnapshotGeneratorFactory.resetAll();
@@ -396,7 +399,7 @@ public abstract class AbstractIntegrationTest {
 
             FileOutputStream output = new FileOutputStream(tempFile);
             try {
-                new DiffToChangeLog(diffResult).print(new PrintStream(output));
+                new DiffToChangeLog(diffResult, new DiffOutputConfig()).print(new PrintStream(output));
                 output.flush();
             } finally {
                 output.close();
@@ -432,7 +435,7 @@ public abstract class AbstractIntegrationTest {
             DiffResult emptyDiffResult = DiffGeneratorFactory.getInstance().compare(emptySnapshot, migratedSnapshot, new DiffControl());
             output = new FileOutputStream(tempFile);
             try {
-                new DiffToChangeLog(emptyDiffResult).print(new PrintStream(output));
+                new DiffToChangeLog(emptyDiffResult, new DiffOutputConfig(true, true, true)).print(new PrintStream(output));
                 output.flush();
             } finally {
                 output.close();
@@ -447,7 +450,7 @@ public abstract class AbstractIntegrationTest {
             }
 
             DatabaseSnapshot emptyAgainSnapshot = DatabaseSnapshotGeneratorFactory.getInstance().createSnapshot(database, new DiffControl());
-            assertEquals(0, emptyAgainSnapshot.getDatabaseObjects(migratedSnapshot.getSchemas().iterator().next(), Table.class).size());
+            assertEquals(1, emptyAgainSnapshot.getDatabaseObjects(migratedSnapshot.getSchemas().iterator().next(), Table.class).size());
             assertEquals(0, emptyAgainSnapshot.getDatabaseObjects(migratedSnapshot.getSchemas().iterator().next(), View.class).size());
         }
     }
@@ -472,13 +475,14 @@ public abstract class AbstractIntegrationTest {
 
         DatabaseSnapshot originalSnapshot = DatabaseSnapshotGeneratorFactory.getInstance().createSnapshot(database, new DiffControl());
 
-        DiffResult diffResult = DiffGeneratorFactory.getInstance().compare(database, null, new DiffControl(new Schema(Catalog.DEFAULT, "liquibaseb")));
+        DiffControl diffControl = new DiffControl(new DiffControl.SchemaComparison[]{new DiffControl.SchemaComparison(Schema.DEFAULT, new Schema(Catalog.DEFAULT, "liquibaseb"))});
+        DiffResult diffResult = DiffGeneratorFactory.getInstance().compare(database, database, diffControl);
 
         File tempFile = File.createTempFile("liquibase-test", ".xml");
 
         FileOutputStream output = new FileOutputStream(tempFile);
         try {
-            new DiffToChangeLog(diffResult).print(new PrintStream(output));
+            new DiffToChangeLog(diffResult, new DiffOutputConfig()).print(new PrintStream(output));
             output.flush();
         } finally {
             output.close();
@@ -827,13 +831,13 @@ public abstract class AbstractIntegrationTest {
     @Test
     public void contextsWithHyphensWorkInFormattedSql() throws Exception {
         Liquibase liquibase = createLiquibase("changelogs/common/sqlstyle/formatted.changelog.sql");
-        liquibase.update("hyphen-context-using-sql");
+        liquibase.update("hyphen-context-using-sql,camelCaseContextUsingSql");
 
         DatabaseSnapshotGenerator snapshot = DatabaseSnapshotGeneratorFactory.getInstance().getGenerator(database);
-        assertNotNull(snapshot.hasTable(null, null, "hyphen_context", database));
-        assertNull(snapshot.hasTable(null, null, "camel_context", database));
-        assertNotNull(snapshot.hasTable(null, null, "bar_id", database));
-        assertNotNull(snapshot.hasTable(null, null, "foo_id", database));
+        assertNotNull(snapshot.hasTable(null, "hyphen_context", database));
+        assertNotNull(snapshot.hasTable(null, "camel_context", database));
+        assertNotNull(snapshot.hasTable(null, "bar_id", database));
+        assertNotNull(snapshot.hasTable(null, "foo_id", database));
     }
 
 //   @Test

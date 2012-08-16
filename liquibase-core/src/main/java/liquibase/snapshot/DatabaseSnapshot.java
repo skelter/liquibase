@@ -2,6 +2,7 @@ package liquibase.snapshot;
 
 import liquibase.database.Database;
 import liquibase.database.structure.*;
+import liquibase.exception.UnexpectedLiquibaseException;
 
 import java.util.*;
 
@@ -31,7 +32,10 @@ public class DatabaseSnapshot {
     }
 
     public <T extends DatabaseObject> Set<T> getDatabaseObjects(Schema schema, Class<T> type) {
-        schema = schema.clone(database);
+        if (database != null) {
+            schema = database.correctSchema(schema);
+        }
+
         if (!schemaSnapshots.containsKey(schema)) {
             return Collections.unmodifiableSet(new HashSet<T>());
         }
@@ -45,6 +49,8 @@ public class DatabaseSnapshot {
     }
 
     public <T extends DatabaseObject> T getDatabaseObject(Schema schema, String objectName, Class<T> type) {
+        schema = database.correctSchema(schema);
+
         for (DatabaseObject object : getDatabaseObjects(schema, type)) {
             if (object.getName().equals(objectName)) {
                 //noinspection unchecked
@@ -55,6 +61,8 @@ public class DatabaseSnapshot {
     }
 
     public <T extends DatabaseObject> T getDatabaseObject(Schema schema, DatabaseObject databaseObject, Class<T> type) {
+        schema = database.correctSchema(schema);
+
         for (DatabaseObject object : getDatabaseObjects(schema, type)) {
             if (object.equals(databaseObject)) {
                 //noinspection unchecked
@@ -65,7 +73,9 @@ public class DatabaseSnapshot {
     }
 
     public void addSchema(Schema schema) {
-        schema = schema.clone(database);
+        if (database != null) {
+            schema = database.correctSchema(schema);
+        }
         schemaSnapshots.put(schema, new SchemaSnapshot(schema));
     }
 
