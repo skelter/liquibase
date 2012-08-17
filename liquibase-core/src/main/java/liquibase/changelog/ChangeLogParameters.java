@@ -11,6 +11,10 @@ import java.util.regex.Pattern;
 import liquibase.database.Database;
 import liquibase.util.StringUtils;
 
+
+/**
+ * ChangeLogParameters provides a mechanism to expand ${parameters} in a changelog.
+ */
 public class ChangeLogParameters {
 
     private List<ChangeLogParameter> changeLogParameters = new ArrayList<ChangeLogParameter>();
