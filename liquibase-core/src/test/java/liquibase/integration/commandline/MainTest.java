@@ -294,7 +294,7 @@ public class MainTest {
         // verify unexpected parameter
         for(int i=0; i<noArgCommand.length; i++) {
             cli.command = noArgCommand[i];
-            assertEquals(1, cli.checkSetup().size());
+            assertEquals("Expecting 1 message from checkSetup for arg " + noArgCommand[i], 1, cli.checkSetup().size());
         }
         
         // test update cmd with -D parameter

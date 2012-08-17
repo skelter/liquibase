@@ -18,15 +18,7 @@ import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -345,22 +337,31 @@ public class Main {
     }
 
     private boolean isNoArgCommand(String arg) {
-            return "migrate".equals(arg)
-                    || "migrateSQL".equalsIgnoreCase(arg)
-                    || "update".equalsIgnoreCase(arg)
-                    || "updateSQL".equalsIgnoreCase(arg)
-                    || "futureRollbackSQL".equalsIgnoreCase(arg)
-                    || "updateTestingRollback".equalsIgnoreCase(arg)
-                    || "listLocks".equalsIgnoreCase(arg)
-                    || "dropAll".equalsIgnoreCase(arg)
-                    || "releaseLocks".equalsIgnoreCase(arg)
-                    || "validate".equalsIgnoreCase(arg)
-                    || "help".equalsIgnoreCase(arg)
-                    || "clearCheckSums".equalsIgnoreCase(arg)
-                    || "changelogSync".equalsIgnoreCase(arg)
-                    || "changelogSyncSQL".equalsIgnoreCase(arg)
-                    || "markNextChangeSetRan".equalsIgnoreCase(arg)
-                    || "markNextChangeSetRanSQL".equalsIgnoreCase(arg);
+        final List<String> noArgCommands = Arrays.asList(new String[]{
+                "migrate",
+                "migrateSQL",
+                "update",
+                "updateSQL",
+                "futureRollbackSQL",
+                "updateTestingRollback",
+                "listLocks",
+                "dropAll",
+                "releaseLocks",
+                "validate",
+                "help",
+                "clearCheckSums",
+                "changelogSync",
+                "changelogSyncSQL",
+                "markNextChangeSetRan",
+                "markNextChangeSetRanSQL",
+                "generateChangeLog"
+        });
+        for (String knownNoArgCommand : noArgCommands) {
+            if (knownNoArgCommand.equalsIgnoreCase(arg)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
