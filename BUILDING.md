@@ -29,5 +29,46 @@ $ mvn package
 [INFO] Liquibase Integration Tests
 ```
 
+## Core Subsystems by Function ##
+
+*  DB Refactorings - ChangeLogs, changes and preconditions; parsers and serializers.
+   *   liquibase.change
+   *   liquibase.changelog
+   *   liquibase.parser
+   *   liquibase.serializer
+   *   liquibase.precondition
+   *   liquibase.datatype
+   *   liquibase.sqlgenerator
+   *   liquibase.statement
+   *   liquibase.sql
+*  Snapshots and Diffs
+   *   liquibase.diff
+   *   liquibase.snapshot
+*  DB Interfacing - connections, database-specific implementations of changes and SQL, executors and the locking service.
+   *   liquibase.database
+       * core
+       * jvm
+       * structure
+   *   liquibase.executor
+   *   liquibase.lockservice
+*  DB Doc - generation of beautiful, meaningful documentation
+   * liquibase.dbdoc
+*  Integration - Using Liquibase from various build systems, J2EE containers, dependency injection and command line.
+   * liquibase.integration
+      * ant
+      * cdi
+      * commandline
+      * servlet
+      * spring
+*  Internals - programmatic necessities having little to do with databases:
+   logging, resource loading, service location, file io, etc.
+   *  liquibase.logger
+   *  liquibase.resource
+   *  liquibase.servicelocator
+   *  liquibase.utils
+   *  liquibase.exception
+*  Primary programatic entry
+   * liquibase.Liquibase
+
 ## Known Issues ##
 
