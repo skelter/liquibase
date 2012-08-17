@@ -52,14 +52,20 @@ public class DB2Database extends AbstractDatabase {
         Statement stmt = null;
         ResultSet rs = null;
         try {
-          stmt = ((JdbcConnection)getConnection()).createStatement();
-          rs = stmt.executeQuery("select current schema from sysibm.sysdummy1");
-          if( rs.next() ) {
-            String result = rs.getString(1);
-            if( result != null ) {
-              this.defaultSchemaName = result;
-            } else {
+          if (null == getConnection()) {
+              //TODO warn("Cannot get schema from a null connection.");
               this.defaultSchemaName = super.getDefaultSchemaName();
+          }
+          else {
+            stmt = ((JdbcConnection)getConnection()).createStatement();
+            rs = stmt.executeQuery("select current schema from sysibm.sysdummy1");
+            if( rs.next() ) {
+              String result = rs.getString(1);
+              if( result != null ) {
+                this.defaultSchemaName = result;
+              } else {
+                this.defaultSchemaName = super.getDefaultSchemaName();
+              }
             }
           }
         } catch (Exception e) {
