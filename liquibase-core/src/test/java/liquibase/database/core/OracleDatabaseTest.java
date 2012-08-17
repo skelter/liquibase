@@ -8,6 +8,7 @@ import org.junit.Test;
 
 /**
  * Tests for {@link liquibase.database.core.OracleDatabase}.
+ *  Does not yet support schemas.
  */
 public class OracleDatabaseTest extends AbstractDatabaseTest {
 
@@ -31,7 +32,7 @@ public class OracleDatabaseTest extends AbstractDatabaseTest {
     @Test
     public void escapeTableName_withSchema() {
         Database database = getDatabase();
-        assertEquals("schemaName.tableName", database.escapeTableName("catalogName", "schemaName", "tableName"));
+        assertEquals("tableName", database.escapeTableName("catalogName", "schemaName", "tableName"));
     }
 
     @Override
