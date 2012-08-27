@@ -548,7 +548,8 @@ public abstract class AbstractDatabase implements Database {
             boolean hasLiquibase = changeLogTable.getColumn("LIQUIBASE") != null;
             boolean liquibaseColumnNotRightSize = false;
             if (!connection.getDatabaseProductName().equals("SQLite")) {
-                liquibaseColumnNotRightSize = changeLogTable.getColumn("LIQUIBASE").getType().getColumnSize() != 20;
+                Integer liquibaseSize = changeLogTable.getColumn("LIQUIBASE").getType().getColumnSize();
+                liquibaseColumnNotRightSize = (null == liquibaseSize) || (liquibaseSize != 20);
             }
             boolean hasOrderExecuted = changeLogTable.getColumn("ORDEREXECUTED") != null;
             boolean checksumNotRightSize = false;
