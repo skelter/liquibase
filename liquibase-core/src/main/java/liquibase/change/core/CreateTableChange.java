@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Creates a new table.
  */
-@ChangeClass(name="createTable", description = "Create Table", priority = ChangeMetaData.PRIORITY_DEFAULT)
+@DatabaseChange(name="createTable", description = "Create Table", priority = ChangeMetaData.PRIORITY_DEFAULT)
 public class CreateTableChange extends AbstractChange implements ChangeWithColumns<ColumnConfig> {
 
     private List<ColumnConfig> columns;
@@ -117,7 +117,7 @@ public class CreateTableChange extends AbstractChange implements ChangeWithColum
         };
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public List<ColumnConfig> getColumns() {
         return columns;
     }
@@ -142,7 +142,7 @@ public class CreateTableChange extends AbstractChange implements ChangeWithColum
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getTableName() {
         return tableName;
     }

@@ -22,49 +22,45 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 
 /**
- * Standard superclass for Changes to implement. This is a <i>skeletal implementation</i>,
- * as defined in Effective Java#16.
+ * Standard superclass for Changes to implement.
  *
  * @see Change
  */
 public abstract class AbstractChange implements Change {
 
-    @ChangeProperty(includeInSerialization = false, includeInMetaData = false)
+    @DatabaseChangeProperty(includeInSerialization = false, includeInMetaData = false)
     private ChangeMetaData changeMetaData;
 
-    @ChangeProperty(includeInSerialization = false, includeInMetaData = false)
+    @DatabaseChangeProperty(includeInSerialization = false, includeInMetaData = false)
     private ResourceAccessor resourceAccessor;
 
-    @ChangeProperty(includeInSerialization = false, includeInMetaData = false)
+    @DatabaseChangeProperty(includeInSerialization = false, includeInMetaData = false)
     private ChangeSet changeSet;
 
-    @ChangeProperty(includeInSerialization = false)
+    @DatabaseChangeProperty(includeInSerialization = false)
     private ChangeLogParameters changeLogParameters;
-
-//    /**
-//     * Constructor with tag name and name
-//     *
-//     * @param changeName        the tag name for this change
-//     * @param changeDescription the name for this change
-//     */
-//    protected AbstractChange(String changeName, String changeDescription, int priority) {
-//        this.changeMetaData = new ChangeMetaData(changeName, changeDescription, priority);
-//    }
 
     public AbstractChange() {
         this.changeMetaData = createChangeMetaData();
     }
 
     /**
-     * Generate the ChangeMetaData for this class. By default reads from the @ChangeClass annotation, but can return anything
-     * @return
+     * Most Changes don't need to do any setup.
+     * This implements a no-op
+     */
+    public void init() throws SetupException {
+
+    }
+
+    /**
+     * Generate the ChangeMetaData for this class. By default reads from the @DatabaseChange annotation, but can return anything
      */
     protected ChangeMetaData createChangeMetaData() {
         try {
-            ChangeClass changeClass = this.getClass().getAnnotation(ChangeClass.class);
+            DatabaseChange databaseChange = this.getClass().getAnnotation(DatabaseChange.class);
 
-            if (changeClass == null) {
-                throw new UnexpectedLiquibaseException("No @ChangeClass annotation for "+getClass().getName());
+            if (databaseChange == null) {
+                throw new UnexpectedLiquibaseException("No @DatabaseChange annotation for "+getClass().getName());
             }
 
             Set<ChangeParameterMetaData> params = new HashSet<ChangeParameterMetaData>();
@@ -72,7 +68,7 @@ public abstract class AbstractChange implements Change {
                 Method readMethod = property.getReadMethod();
                 Method writeMethod = property.getWriteMethod();
                 if (readMethod != null && writeMethod != null) {
-                    ChangeProperty annotation = readMethod.getAnnotation(ChangeProperty.class);
+                    DatabaseChangeProperty annotation = readMethod.getAnnotation(DatabaseChangeProperty.class);
                     if (annotation == null || annotation.includeInMetaData()) {
                         ChangeParameterMetaData param = createChangeParameterMetadata(property.getDisplayName());
                         params.add(param);
@@ -81,14 +77,13 @@ public abstract class AbstractChange implements Change {
 
             }
 
-
-            return new ChangeMetaData(changeClass.name(), changeClass.description(), changeClass.priority(), changeClass.appliesTo(), params);
+            return new ChangeMetaData(databaseChange.name(), databaseChange.description(), databaseChange.priority(), databaseChange.appliesTo(), params);
         } catch (Throwable e) {
             throw new UnexpectedLiquibaseException(e);
         }
     }
 
-    private ChangeParameterMetaData createChangeParameterMetadata(String propertyName) throws Exception {
+    protected ChangeParameterMetaData createChangeParameterMetadata(String propertyName) throws Exception {
 
         String displayName = propertyName.replaceAll("([A-Z])", " $1");
         displayName = displayName.substring(0,1).toUpperCase()+displayName.substring(1);
@@ -105,7 +100,7 @@ public abstract class AbstractChange implements Change {
         }
 
         String type = property.getPropertyType().getSimpleName();
-        ChangeProperty changePropertyAnnotation = property.getReadMethod().getAnnotation(ChangeProperty.class);
+        DatabaseChangeProperty changePropertyAnnotation = property.getReadMethod().getAnnotation(DatabaseChangeProperty.class);
 
         String[] requiredForDatabase;
         String mustApplyTo = null;
@@ -123,7 +118,7 @@ public abstract class AbstractChange implements Change {
         return changeMetaData;
     }
 
-    @ChangeProperty(includeInMetaData = false)
+    @DatabaseChangeProperty(includeInMetaData = false)
     public ChangeSet getChangeSet() {
         return changeSet;
     }
@@ -132,9 +127,13 @@ public abstract class AbstractChange implements Change {
         this.changeSet = changeSet;
     }
 
-    public boolean requiresUpdatedDatabaseMetadata(Database database) {
+    /**
+     * Return true if the Change class queries the database in any way to determine Statements to execute.
+     * If the change queries the database, it cannot be used in updateSql type operations
+     */
+    public boolean queriesDatabase(Database database) {
         for (SqlStatement statement : generateStatements(database)) {
-            if (SqlGeneratorFactory.getInstance().requiresCurrentDatabaseMetadata(statement, database)) {
+            if (SqlGeneratorFactory.getInstance().queriesDatabase(statement, database)) {
                 return true;
             }
         }
@@ -166,7 +165,7 @@ public abstract class AbstractChange implements Change {
 
         for (ChangeParameterMetaData param : getChangeMetaData().getParameters()) {
             if (param.isRequiredFor(database) && param.getCurrentValue(this) == null) {
-                changeValidationErrors.addError(param.getParameterName()+" is required for "+getChangeMetaData().getName()+" on "+database.getTypeName());
+                changeValidationErrors.addError(param.getParameterName()+" is required for "+getChangeMetaData().getName()+" on "+database.getShortName());
             }
         }
         if (changeValidationErrors.hasErrors()) {
@@ -177,9 +176,9 @@ public abstract class AbstractChange implements Change {
             boolean supported = SqlGeneratorFactory.getInstance().supports(statement, database);
             if (!supported) {
                 if (statement.skipOnUnsupported()) {
-                    LogFactory.getLogger().info(getChangeMetaData().getName()+" is not supported on "+database.getTypeName()+" but will continue");
+                    LogFactory.getLogger().info(getChangeMetaData().getName()+" is not supported on "+database.getShortName()+" but will continue");
                 } else {
-                    changeValidationErrors.addError(getChangeMetaData().getName()+" is not supported on "+database.getTypeName());
+                    changeValidationErrors.addError(getChangeMetaData().getName()+" is not supported on "+database.getShortName());
                 }
             } else {
                 changeValidationErrors.addAll(SqlGeneratorFactory.getInstance().validate(statement, database));
@@ -189,35 +188,18 @@ public abstract class AbstractChange implements Change {
         return changeValidationErrors;
     }
 
-    /*
-    * Skipped by this skeletal implementation
-    *
-    * @see liquibase.change.Change#generateStatements(liquibase.database.Database)
-    */
-
-    /**
-     * @see liquibase.change.Change#generateRollbackStatements(liquibase.database.Database)
-     */
     public SqlStatement[] generateRollbackStatements(Database database) throws UnsupportedChangeException, RollbackImpossibleException {
         return generateRollbackStatementsFromInverse(database);
     }
 
-    /**
-     * @see Change#supportsRollback(liquibase.database.Database)
-     * @param database
-     */
     public boolean supportsRollback(Database database) {
         return createInverses() != null;
     }
 
-    /**
-     * @see liquibase.change.Change#generateCheckSum()
-     */
     public CheckSum generateCheckSum() {
         return CheckSum.compute(new StringChangeLogSerializer().serialize(this));
     }
 
-    //~ ------------------------------------------------------------------------------- private methods
     /*
      * Generates rollback statements from the inverse changes returned by createInverses()
      *
@@ -265,17 +247,9 @@ public abstract class AbstractChange implements Change {
      *
      * @return The file opener
      */
-    @ChangeProperty(includeInMetaData = false)
+    @DatabaseChangeProperty(includeInMetaData = false)
     public ResourceAccessor getResourceAccessor() {
         return resourceAccessor;
-    }
-
-    /**
-     * Most Changes don't need to do any setup.
-     * This implements a no-op
-     */
-    public void init() throws SetupException {
-
     }
 
     public Set<DatabaseObject> getAffectedDatabaseObjects(Database database) {

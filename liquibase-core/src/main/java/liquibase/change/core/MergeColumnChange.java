@@ -9,7 +9,6 @@ import liquibase.database.structure.Index;
 import liquibase.exception.UnsupportedChangeException;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.RawSqlStatement;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +17,7 @@ import java.util.List;
 /**
  * Combines data from two existing columns into a new column and drops the original columns.
  */
-@ChangeClass(name="mergeColumns", description = "Merge Column", priority = ChangeMetaData.PRIORITY_DEFAULT)
+@DatabaseChange(name="mergeColumns", description = "Merge Column", priority = ChangeMetaData.PRIORITY_DEFAULT)
 public class MergeColumnChange extends AbstractChange {
 
     private String catalogName;
@@ -29,6 +28,11 @@ public class MergeColumnChange extends AbstractChange {
     private String column2Name;
     private String finalColumnName;
     private String finalColumnType;
+
+    @Override
+    public boolean supports(Database database) {
+        return supports(database) && !(database instanceof DerbyDatabase);
+    }
 
     public String getCatalogName() {
         return catalogName;
@@ -46,7 +50,7 @@ public class MergeColumnChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getTableName() {
         return tableName;
     }
@@ -55,7 +59,7 @@ public class MergeColumnChange extends AbstractChange {
         this.tableName = tableName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getColumn1Name() {
         return column1Name;
     }
@@ -72,7 +76,7 @@ public class MergeColumnChange extends AbstractChange {
         this.joinString = joinString;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getColumn2Name() {
         return column2Name;
     }
@@ -81,7 +85,7 @@ public class MergeColumnChange extends AbstractChange {
         this.column2Name = column2Name;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getFinalColumnName() {
         return finalColumnName;
     }
@@ -90,7 +94,7 @@ public class MergeColumnChange extends AbstractChange {
         this.finalColumnName = finalColumnName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getFinalColumnType() {
         return finalColumnType;
     }
@@ -100,7 +104,6 @@ public class MergeColumnChange extends AbstractChange {
     }
 
     public SqlStatement[] generateStatements(Database database) {
-
         List<SqlStatement> statements = new ArrayList<SqlStatement>();
 
         AddColumnChange addNewColumnChange = new AddColumnChange();
@@ -172,10 +175,6 @@ public class MergeColumnChange extends AbstractChange {
         }
         return statements.toArray(new SqlStatement[statements.size()]);
 
-    }
-
-    public SqlStatement[] generateStatements(@SuppressWarnings("unused") DerbyDatabase database) throws UnsupportedChangeException {
-        throw new UnsupportedChangeException("Derby does not currently support merging columns");
     }
 
     public String getConfirmationMessage() {

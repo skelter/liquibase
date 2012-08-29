@@ -9,7 +9,6 @@ import liquibase.database.structure.Index;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.statement.core.ReorganizeTableStatement;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
 /**
  * Creates a primary key out of an existing column or set of columns.
  */
-@ChangeClass(name="addPrimaryKey", description = "Add Primary Key", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "column")
+@DatabaseChange(name="addPrimaryKey", description = "Add Primary Key", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "column")
 public class AddPrimaryKeyChange extends AbstractChange {
 
     private String catalogName;
@@ -27,7 +26,7 @@ public class AddPrimaryKeyChange extends AbstractChange {
     private String columnNames;
     private String constraintName;
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "column.relation")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "column.relation")
     public String getTableName() {
         return tableName;
     }
@@ -36,7 +35,7 @@ public class AddPrimaryKeyChange extends AbstractChange {
         this.tableName = tableName;
     }
 
-    @ChangeProperty(mustApplyTo ="column.relation.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="column.relation.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -45,7 +44,7 @@ public class AddPrimaryKeyChange extends AbstractChange {
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="column.relation.schema")
+    @DatabaseChangeProperty(mustApplyTo ="column.relation.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -54,7 +53,7 @@ public class AddPrimaryKeyChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "column")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "column")
     public String getColumnNames() {
         return columnNames;
     }
@@ -101,49 +100,49 @@ public class AddPrimaryKeyChange extends AbstractChange {
         };
     }
 
-    private SqlStatement[] generateStatementsForSQLiteDatabase(Database database) {
-        // SQLite does not support this ALTER TABLE operation until now.
-        // or more information: http://www.sqlite.org/omitted.html
-        // This is a small work around...
-
-        List<SqlStatement> statements = new ArrayList<SqlStatement>();
-
-        // define alter table logic
-        AlterTableVisitor rename_alter_visitor = new AlterTableVisitor() {
-            public ColumnConfig[] getColumnsToAdd() {
-                return new ColumnConfig[0];
-            }
-
-            public boolean copyThisColumn(ColumnConfig column) {
-                return true;
-            }
-
-            public boolean createThisColumn(ColumnConfig column) {
-                String[] split_columns = getColumnNames().split("[ ]*,[ ]*");
-                for (String split_column : split_columns) {
-                    if (column.getName().equals(split_column)) {
-                        column.getConstraints().setPrimaryKey(true);
-                    }
-                }
-                return true;
-            }
-
-            public boolean createThisIndex(Index index) {
-                return true;
-            }
-        };
-
-        try {
-            // alter table
-            statements.addAll(SQLiteDatabase.getAlterTableStatements(
-                    rename_alter_visitor,
-                    database, getCatalogName(),  getSchemaName(), getTableName()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return statements.toArray(new SqlStatement[statements.size()]);
-    }
+//    private SqlStatement[] generateStatementsForSQLiteDatabase(Database database) {
+//        // SQLite does not support this ALTER TABLE operation until now.
+//        // or more information: http://www.sqlite.org/omitted.html
+//        // This is a small work around...
+//
+//        List<SqlStatement> statements = new ArrayList<SqlStatement>();
+//
+//        // define alter table logic
+//        AlterTableVisitor rename_alter_visitor = new AlterTableVisitor() {
+//            public ColumnConfig[] getColumnsToAdd() {
+//                return new ColumnConfig[0];
+//            }
+//
+//            public boolean copyThisColumn(ColumnConfig column) {
+//                return true;
+//            }
+//
+//            public boolean createThisColumn(ColumnConfig column) {
+//                String[] split_columns = getColumnNames().split("[ ]*,[ ]*");
+//                for (String split_column : split_columns) {
+//                    if (column.getName().equals(split_column)) {
+//                        column.getConstraints().setPrimaryKey(true);
+//                    }
+//                }
+//                return true;
+//            }
+//
+//            public boolean createThisIndex(Index index) {
+//                return true;
+//            }
+//        };
+//
+//        try {
+//            // alter table
+//            statements.addAll(SQLiteDatabase.getAlterTableStatements(
+//                    rename_alter_visitor,
+//                    database, getCatalogName(),  getSchemaName(), getTableName()));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return statements.toArray(new SqlStatement[statements.size()]);
+//    }
 
     @Override
     protected Change[] createInverses() {

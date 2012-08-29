@@ -4,7 +4,6 @@ import liquibase.change.*;
 import liquibase.database.Database;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.CreateIndexStatement;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,27 +11,28 @@ import java.util.List;
 /**
  * Creates an index on an existing column.
  */
-@ChangeClass(name="createIndex", description = "Create Index", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "index")
+@DatabaseChange(name="createIndex", description = "Create Index", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "index")
 public class CreateIndexChange extends AbstractChange implements ChangeWithColumns<ColumnConfig> {
 
+    private String catalogName;
     private String schemaName;
     private String tableName;
     private String indexName;
     private Boolean unique;
     private String tablespace;
     private List<ColumnConfig> columns;
+
 	// Contain associations of index
 	// for example: foreignKey, primaryKey or uniqueConstraint
-    @ChangeProperty(includeInSerialization = false)
+    @DatabaseChangeProperty(includeInSerialization = false)
 	private String associatedWith;
-    private String catalogName;
 
 
     public CreateIndexChange() {
         columns = new ArrayList<ColumnConfig>();
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "index")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "index")
     public String getIndexName() {
         return indexName;
     }
@@ -43,7 +43,7 @@ public class CreateIndexChange extends AbstractChange implements ChangeWithColum
 
 
 
-    @ChangeProperty(mustApplyTo ="index.schema")
+    @DatabaseChangeProperty(mustApplyTo ="index.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -52,7 +52,7 @@ public class CreateIndexChange extends AbstractChange implements ChangeWithColum
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "index.table")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "index.table")
     public String getTableName() {
         return tableName;
     }
@@ -61,7 +61,7 @@ public class CreateIndexChange extends AbstractChange implements ChangeWithColum
         this.tableName = tableName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "index.column")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "index.column")
     public List<ColumnConfig> getColumns() {
         return columns;
     }
