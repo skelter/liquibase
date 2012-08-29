@@ -2,9 +2,9 @@ package liquibase.database.core;
 
 import liquibase.database.AbstractDatabase;
 import liquibase.database.DatabaseConnection;
+import liquibase.database.structure.DatabaseObject;
 import liquibase.database.structure.Schema;
 import liquibase.exception.DatabaseException;
-import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.executor.Executor;
 import liquibase.executor.ExecutorService;
 import liquibase.logging.LogFactory;
@@ -26,7 +26,7 @@ public class SybaseDatabase extends AbstractDatabase {
         return "Sybase SQL Server";
     }
 
-    public String getTypeName() {
+    public String getShortName() {
         return "sybase";
     }
 
@@ -84,7 +84,7 @@ public class SybaseDatabase extends AbstractDatabase {
     }
 
     @Override
-    public Set<String> getSystemTablesAndViews() {
+    public Set<String> getSystemViews() {
         return systemTablesAndViews;
     }
 
@@ -228,7 +228,7 @@ public class SybaseDatabase extends AbstractDatabase {
     }
 
     @Override
-    public String escapeDatabaseObject(String objectName) {
+    public String escapeDatabaseObject(String objectName, Class<? extends DatabaseObject> objectType) {
         return "["+objectName+"]";
     }
 

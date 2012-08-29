@@ -2,6 +2,7 @@ package liquibase.database.core;
 
 import liquibase.database.DatabaseConnection;
 import liquibase.database.AbstractDatabase;
+import liquibase.database.structure.DatabaseObject;
 import liquibase.database.structure.Schema;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.DateParseException;
@@ -22,10 +23,10 @@ public class H2Database extends AbstractDatabase {
     private static String SEP_CONCAT = ", ";
 
     public H2Database() {
-        this.databaseFunctions.add(new DatabaseFunction("CURRENT_TIMESTAMP()"));
+        this.dateFunctions.add(new DatabaseFunction("CURRENT_TIMESTAMP()"));
     }
 
-    public String getTypeName() {
+    public String getShortName() {
         return "h2";
     }
 
@@ -54,7 +55,7 @@ public class H2Database extends AbstractDatabase {
     }
 
     @Override
-    protected String correctObjectName(String objectName) {
+    public String correctObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
         if (objectName == null) {
             return null;
         }
@@ -120,10 +121,10 @@ public class H2Database extends AbstractDatabase {
     }
 
     @Override
-    public boolean isLocalDatabase() throws DatabaseException {
+    public boolean isSafeToRunUpdate() throws DatabaseException {
         String url = getConnection().getURL();
         boolean isLocalURL = (
-                super.isLocalDatabase()
+                super.isSafeToRunUpdate()
                         || url.startsWith("jdbc:h2:file:")
                         || url.startsWith("jdbc:h2:mem:")
                         || url.startsWith("jdbc:h2:zip:")
@@ -189,7 +190,7 @@ public class H2Database extends AbstractDatabase {
 
 
     @Override
-    public String escapeDatabaseObject(String objectName) {
+    public String escapeDatabaseObject(String objectName, Class<? extends DatabaseObject> objectType) {
     	if (objectName != null) {
             if (isReservedWord(objectName)) {
                 return "\""+objectName.toUpperCase()+"\"";

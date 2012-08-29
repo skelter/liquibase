@@ -296,6 +296,7 @@ public class Main {
         return command.toLowerCase().startsWith("update")
                 || command.toLowerCase().startsWith("rollback")
                 || "calculateCheckSum".equalsIgnoreCase(command)
+                || "status".equalsIgnoreCase(command)
                 || "validate".equalsIgnoreCase(command)
                 || "changeLogSync".equalsIgnoreCase(command)
                 || "changeLogSyncSql".equalsIgnoreCase(command);
@@ -750,8 +751,7 @@ public class Main {
         FileSystemResourceAccessor fsOpener = new FileSystemResourceAccessor();
         CommandLineResourceAccessor clOpener = new CommandLineResourceAccessor(classLoader);
         Database database = CommandLineUtils.createDatabaseObject(classLoader, this.url, 
-            this.username, this.password, this.driver, this.defaultSchemaName, 
-            this.databaseClass, this.driverPropertiesFile);
+            this.username, this.password, this.driver, this.defaultCatalogName,this.defaultSchemaName, this.databaseClass, this.driverPropertiesFile);
         try {
 
 
@@ -924,6 +924,7 @@ public class Main {
         String username = referenceUsername;
         String password = referencePassword;
         String defaultSchemaName = this.defaultSchemaName;
+        String defaultCatalogName = this.defaultCatalogName;
 
         for (String param : commandParams) {
             String[] splitArg = splitArg(param);
@@ -938,6 +939,8 @@ public class Main {
                 username = value;
             } else if ("referencePassword".equalsIgnoreCase(attributeName)) {
                 password = value;
+            } else if ("referenceDefaultCatalogName".equalsIgnoreCase(attributeName)) {
+                defaultCatalogName = value;
             } else if ("referenceDefaultSchemaName".equalsIgnoreCase(attributeName)) {
                 defaultSchemaName = value;
             } else if ("dataOutputDirectory".equalsIgnoreCase(attributeName)) {
@@ -953,7 +956,7 @@ public class Main {
             throw new CommandLineParsingException("referenceUrl parameter missing");
         }
 
-        return CommandLineUtils.createDatabaseObject(classLoader, url, username, password, driver, defaultSchemaName, null, null);
+        return CommandLineUtils.createDatabaseObject(classLoader, url, username, password, driver, defaultCatalogName, defaultSchemaName, null, null);
 //        Driver driverObject;
 //        try {
 //            driverObject = (Driver) Class.forName(driver, true, classLoader).newInstance();

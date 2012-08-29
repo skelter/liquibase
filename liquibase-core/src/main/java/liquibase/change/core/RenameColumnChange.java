@@ -7,7 +7,6 @@ import liquibase.database.core.SQLiteDatabase.AlterTableVisitor;
 import liquibase.database.structure.Index;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.RenameColumnStatement;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 /**
  * Renames an existing column.
  */
-@ChangeClass(name="renameColumn", description = "Rename Column", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "column")
+@DatabaseChange(name="renameColumn", description = "Rename Column", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "column")
 public class RenameColumnChange extends AbstractChange {
 
     private String catalogName;
@@ -25,7 +24,7 @@ public class RenameColumnChange extends AbstractChange {
     private String newColumnName;
     private String columnDataType;
 
-    @ChangeProperty(mustApplyTo ="column.relation.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="column.relation.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -34,7 +33,7 @@ public class RenameColumnChange extends AbstractChange {
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="column.relation.schema")
+    @DatabaseChangeProperty(mustApplyTo ="column.relation.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -43,7 +42,7 @@ public class RenameColumnChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "column.relation")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "column.relation")
     public String getTableName() {
         return tableName;
     }
@@ -52,7 +51,7 @@ public class RenameColumnChange extends AbstractChange {
         this.tableName = tableName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "column")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "column")
     public String getOldColumnName() {
         return oldColumnName;
     }
@@ -61,7 +60,7 @@ public class RenameColumnChange extends AbstractChange {
         this.oldColumnName = oldColumnName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getNewColumnName() {
         return newColumnName;
     }

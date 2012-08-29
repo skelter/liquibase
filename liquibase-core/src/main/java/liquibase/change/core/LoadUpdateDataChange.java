@@ -1,8 +1,8 @@
 package liquibase.change.core;
 
-import liquibase.change.ChangeClass;
+import liquibase.change.DatabaseChange;
 import liquibase.change.ChangeMetaData;
-import liquibase.change.ChangeProperty;
+import liquibase.change.DatabaseChangeProperty;
 import liquibase.database.Database;
 import liquibase.datatype.DataTypeFactory;
 import liquibase.exception.RollbackImpossibleException;
@@ -16,14 +16,9 @@ import liquibase.statement.core.InsertStatement;
 import java.util.ArrayList;
 import java.util.List;
 
-@ChangeClass(name="loadUpdateData", description = "Smart Load Data", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
+@DatabaseChange(name="loadUpdateData", description = "Smart Load Data", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
 public class LoadUpdateDataChange extends LoadDataChange {
     private String primaryKey;
-
-    @Override
-    public SqlStatement[] generateStatements(Database database) {
-        return super.generateStatements(database);    //To change body of overridden methods use File | Settings | File Templates.
-    }
 
     public void setPrimaryKey(String primaryKey) throws LiquibaseException {
         if (primaryKey == null) {
@@ -32,7 +27,7 @@ public class LoadUpdateDataChange extends LoadDataChange {
         this.primaryKey = primaryKey;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getPrimaryKey() {
         return primaryKey;
     }
@@ -58,15 +53,15 @@ public class LoadUpdateDataChange extends LoadDataChange {
     }
 
     private String getWhereClause(InsertOrUpdateStatement insertOrUpdateStatement, Database database) {
-        StringBuffer where = new StringBuffer();
+        StringBuilder where = new StringBuilder();
 
         String[] pkColumns = insertOrUpdateStatement.getPrimaryKey().split(",");
 
         for(String thisPkColumn:pkColumns)
         {
-            where.append(database.escapeColumnName(insertOrUpdateStatement.getCatalogName(), insertOrUpdateStatement.getSchemaName(), insertOrUpdateStatement.getTableName(), thisPkColumn)  + " = " );
+            where.append(database.escapeColumnName(insertOrUpdateStatement.getCatalogName(), insertOrUpdateStatement.getSchemaName(), insertOrUpdateStatement.getTableName(), thisPkColumn)).append(" = ");
             Object newValue = insertOrUpdateStatement.getColumnValues().get(thisPkColumn);
-            where.append(DataTypeFactory.getInstance().fromObject(newValue, database));
+            where.append(DataTypeFactory.getInstance().fromObject(newValue, database).objectToString(newValue, database));
 
             where.append(" AND ");
         }

@@ -3,6 +3,7 @@ package liquibase.database.core;
 import liquibase.database.AbstractDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.database.structure.DatabaseObject;
 import liquibase.database.structure.Schema;
 import liquibase.exception.DatabaseException;
 import liquibase.logging.LogFactory;
@@ -27,9 +28,9 @@ public class OracleDatabase extends AbstractDatabase {
 
 	public OracleDatabase() {
 		// Setting list of Oracle's native functions
-		databaseFunctions.add(new DatabaseFunction("SYSDATE"));
-		databaseFunctions.add(new DatabaseFunction("SYSTIMESTAMP"));
-        databaseFunctions.add(new DatabaseFunction("CURRENT_TIMESTAMP"));
+		dateFunctions.add(new DatabaseFunction("SYSDATE"));
+		dateFunctions.add(new DatabaseFunction("SYSTIMESTAMP"));
+        dateFunctions.add(new DatabaseFunction("CURRENT_TIMESTAMP"));
 	}
 
 	public int getPriority() {
@@ -37,7 +38,7 @@ public class OracleDatabase extends AbstractDatabase {
     }
 
     @Override
-    protected String correctObjectName(String objectName) {
+    public String correctObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
         return objectName.toUpperCase();
     }
 
@@ -60,7 +61,7 @@ public class OracleDatabase extends AbstractDatabase {
         super.setConnection(conn);
     }
 
-    public String getTypeName() {
+    public String getShortName() {
         return "oracle";
     }
 
@@ -87,7 +88,7 @@ public class OracleDatabase extends AbstractDatabase {
     }
 
     @Override
-    public String escapeDatabaseObject(String objectName) {
+    public String escapeDatabaseObject(String objectName, Class<? extends DatabaseObject> objectType) {
         // escape the object name if it contains any non-word characters
         if (objectName != null &&
                 (Pattern.compile("\\W").matcher(objectName).find() || isReservedWord(objectName))) {
@@ -144,16 +145,6 @@ public class OracleDatabase extends AbstractDatabase {
             return currentDateTimeFunction;
         }
         return "SYSTIMESTAMP";
-    }
-
-    @Override
-    public String escapeIndexName(String catalogName, String schemaName, String indexName) {
-        String escapedIndexName = indexName;
-        if (schemaName != null)
-        {
-            escapedIndexName = escapeDatabaseObject(schemaName) + "." + escapedIndexName;
-        }
-        return escapedIndexName;
     }
 
     /**
@@ -213,13 +204,6 @@ public class OracleDatabase extends AbstractDatabase {
         return false;
     }
     
-    @Override
-    public boolean shouldQuoteValue(String value) {
-        return super.shouldQuoteValue(value)
-            && !value.startsWith("to_date(")
-            && !value.equalsIgnoreCase(getCurrentDateTimeFunction());
-    }
-
     public boolean supportsTablespaces() {
         return true;
     }

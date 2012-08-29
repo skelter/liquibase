@@ -3,14 +3,13 @@ package liquibase.database.core;
 import liquibase.database.AbstractDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.database.structure.DatabaseObject;
 import liquibase.database.structure.Schema;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.DateParseException;
 import liquibase.util.JdbcUtils;
-import sun.util.logging.resources.logging;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,16 +42,21 @@ public class DB2Database extends AbstractDatabase {
     }
 
     @Override
+    public boolean supportsCatalogs() {
+        return true;
+    }
+
+    @Override
     protected String getDefaultDatabaseProductName() {
         return "DB2";
     }
 
-    public String getTypeName() {
+    public String getShortName() {
         return "db2";
     }
 
     @Override
-    public String getDefaultSchemaName() {
+    public String getDefaultCatalogName() {
       if( defaultSchemaName == null ) {
         Statement stmt = null;
         ResultSet rs = null;
@@ -85,7 +89,7 @@ public class DB2Database extends AbstractDatabase {
     }
 
     @Override
-    protected String correctObjectName(String objectName) {
+    public String correctObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
         return objectName.toUpperCase();
     }
 
@@ -141,11 +145,6 @@ public class DB2Database extends AbstractDatabase {
         }
     }
 
-    @Override
-    public boolean shouldQuoteValue(String value) {
-        return super.shouldQuoteValue(value)
-                && !value.startsWith("\"SYSIBM\"");
-    }
 
 
     public boolean supportsTablespaces() {
@@ -202,4 +201,8 @@ public class DB2Database extends AbstractDatabase {
         return super.escapeIndexName(null, null, indexName);
     }
 
+    @Override
+    public String getAssumedCatalogName(String catalogName, String schemaName) {
+        return schemaName;
+    }
 }

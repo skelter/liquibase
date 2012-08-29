@@ -3,7 +3,9 @@ package liquibase.database.core;
 import java.sql.ResultSet;
 import liquibase.database.AbstractDatabase;
 import liquibase.database.DatabaseConnection;
+import liquibase.database.structure.DatabaseObject;
 import liquibase.database.structure.Schema;
+import liquibase.database.structure.View;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.executor.ExecutorService;
@@ -15,6 +17,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.logging.LogFactory;
+import liquibase.util.StringUtils;
 
 /**
  * Encapsulates MS-SQL database support.
@@ -25,7 +28,7 @@ public class MSSQLDatabase extends AbstractDatabase {
 
     private static Pattern CREATE_VIEW_AS_PATTERN = Pattern.compile("^CREATE\\s+.*?VIEW\\s+.*?AS\\s+", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-    public String getTypeName() {
+    public String getShortName() {
         return "mssql";
     }
 
@@ -71,7 +74,7 @@ public class MSSQLDatabase extends AbstractDatabase {
     }
 
     @Override
-    public Set<String> getSystemTablesAndViews() {
+    public Set<String> getSystemViews() {
         return systemTablesAndViews;
     }
 
@@ -226,7 +229,7 @@ public class MSSQLDatabase extends AbstractDatabase {
 
 
     @Override
-    public String escapeDatabaseObject(String objectName) {
+    public String escapeDatabaseObject(String objectName, Class<? extends DatabaseObject> objectType) {
         return "["+objectName+"]";
     }
 
@@ -275,4 +278,21 @@ public class MSSQLDatabase extends AbstractDatabase {
         }
         return CREATE_VIEW_AS_PATTERN.matcher(definition).replaceFirst("");
     }
+
+    /**
+     * SQLServer does not support specifying teh database name as a prefix to the object name
+     * @return
+     */
+    @Override
+    public String escapeViewName(String catalogName, String schemaName, String viewName) {
+        schemaName = getAssumedSchemaName(catalogName, schemaName);
+        if (StringUtils.trimToNull(schemaName) == null) {
+            return escapeDatabaseObject(viewName, View.class);
+        } else {
+            return escapeDatabaseObject(schemaName, Schema.class)+"."+escapeDatabaseObject(viewName, Schema.class);
+        }
+
+    }
+
+
 }

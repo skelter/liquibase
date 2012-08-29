@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Inserts data into an existing table.
  */
-@ChangeClass(name="insert", description = "Insert Row", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
+@DatabaseChange(name="insert", description = "Insert Row", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
 public class InsertDataChange extends AbstractChange implements ChangeWithColumns<ColumnConfig> {
 
     private String catalogName;
@@ -31,7 +31,7 @@ public class InsertDataChange extends AbstractChange implements ChangeWithColumn
         columns = new ArrayList<ColumnConfig>();
     }
 
-    @ChangeProperty(mustApplyTo ="table.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="table.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -40,7 +40,7 @@ public class InsertDataChange extends AbstractChange implements ChangeWithColumn
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="table.schema")
+    @DatabaseChangeProperty(mustApplyTo ="table.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -49,7 +49,7 @@ public class InsertDataChange extends AbstractChange implements ChangeWithColumn
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "table")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "table")
     public String getTableName() {
         return tableName;
     }
@@ -58,7 +58,7 @@ public class InsertDataChange extends AbstractChange implements ChangeWithColumn
         this.tableName = tableName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "table.column")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "table.column")
     public List<ColumnConfig> getColumns() {
         return columns;
     }

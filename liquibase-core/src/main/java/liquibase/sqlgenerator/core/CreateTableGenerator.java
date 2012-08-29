@@ -40,7 +40,7 @@ public class CreateTableGenerator extends AbstractSqlGenerator<CreateTableStatem
             
             buffer.append(database.escapeColumnName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName(), column));
             buffer.append(" ").append(statement.getColumnTypes().get(column).toDatabaseDataType(database));
-            
+
             AutoIncrementConstraint autoIncrementConstraint = null;
             
             for (AutoIncrementConstraint currentAutoIncrementConstraint : statement.getAutoIncrementConstraints()) {
@@ -89,7 +89,7 @@ public class CreateTableGenerator extends AbstractSqlGenerator<CreateTableStatem
                 		buffer.append(" ").append(autoIncrementClause);
                 	}
                 } else {
-                    LogFactory.getLogger().warning(database.getTypeName()+" does not support autoincrement columns as request for "+(database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())));
+                    LogFactory.getLogger().warning(database.getShortName()+" does not support autoincrement columns as request for "+(database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())));
                 }
             }
 

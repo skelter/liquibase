@@ -53,7 +53,7 @@ public abstract class AbstractDatabase implements Database {
     protected String currentDateTimeFunction;
 
     // List of Database native functions.
-    protected List<DatabaseFunction> databaseFunctions = new ArrayList<DatabaseFunction>();
+    protected List<DatabaseFunction> dateFunctions = new ArrayList<DatabaseFunction>();
 
     private List<RanChangeSet> ranChangeSetList;
 
@@ -74,6 +74,7 @@ public abstract class AbstractDatabase implements Database {
     protected BigInteger defaultAutoIncrementBy = BigInteger.ONE;
 
     protected AbstractDatabase() {
+        this.dateFunctions.add(new DatabaseFunction(getCurrentDateTimeFunction()));
     }
 
     public String getName() {
@@ -196,56 +197,85 @@ public abstract class AbstractDatabase implements Database {
     }
 
     public Schema correctSchema(Schema schema) {
+        if (schema instanceof Schema.DatabaseSpecific && ((Schema.DatabaseSpecific) schema).getDatabase().equals(this)) {
+            return schema;
+        }
         if (schema == null) {
-            schema = new Schema(getDefaultCatalogName(), getDefaultSchemaName());
+            return new Schema.DatabaseSpecific(getDefaultCatalogName(), getDefaultSchemaName(), this);
         }
         String catalogName = schema.getCatalogName();
         String schemaName = schema.getName();
 
-        if (catalogName == null) {
-            catalogName = getDefaultCatalogName();
-        } else {
-            catalogName = correctObjectName(catalogName);
-        }
+        if (supportsCatalogs() && supportsSchemas()) {
+            if (catalogName.equals(Catalog.DEFAULT_NAME)) {
+                catalogName = getDefaultCatalogName();
+            } else {
+                catalogName = correctObjectName(catalogName, Catalog.class);
+            }
 
-        if (supportsSchemas()) {
-            if (schemaName == null) {
+            if (schemaName.equals(Schema.DEFAULT_NAME)) {
                 schemaName = getDefaultSchemaName();
             } else {
-                schemaName =  correctObjectName(schemaName);
+                schemaName =  correctObjectName(schemaName, Schema.class);
             }
-        } else {
+        } else if (!supportsCatalogs() && !supportsSchemas()) {
+            return new Schema.DatabaseSpecific("DEFAULT", "DEFAULT", this);
+        }  else if (supportsCatalogs()) { //schema is null
+            if (catalogName.equals(Catalog.DEFAULT_NAME)) {
+                if (Schema.DEFAULT_NAME.equals(schemaName)) {
+                    catalogName = getDefaultCatalogName();
+                } else {
+                    catalogName = schemaName;
+                }
+            }
             schemaName = catalogName;
+        }  else if (supportsSchemas()) {
+            if (schemaName.equals(Schema.DEFAULT_NAME)) {
+                if (Catalog.DEFAULT_NAME.equals(catalogName)) {
+                    schemaName = getDefaultSchemaName();
+                } else {
+                    schemaName = catalogName;
+                }
+            }
+            catalogName = schemaName;
         }
-
-        return new Schema(catalogName, schemaName);
+        return new Schema.DatabaseSpecific(catalogName, schemaName, this);
 
     }
-    public String correctTableName(String tableName) {
-        return correctObjectName(tableName);
+
+    public String getAssumedCatalogName(String catalogName, String schemaName) {
+        if (this.supportsCatalogs()) {
+            if (catalogName == null) {
+                if (this.supportsSchemas()) {
+                    return null;
+                } else {
+                    return schemaName;
+                }
+            } else {
+                return catalogName;
+            }
+        }  else {
+            return null;
+        }
     }
 
-    public String correctConstraintName(String constraintName) {
-        return correctObjectName(constraintName);
+    public String getAssumedSchemaName(String catalogName, String schemaName) {
+        if (this.supportsSchemas()) {
+            if (schemaName == null) {
+                if (this.supportsCatalogs()) {
+                    return null;
+                } else {
+                    return catalogName;
+                }
+            } else {
+                return schemaName;
+            }
+        }  else {
+            return null;
+        }
     }
 
-    public String correctColumnName(String columnName) {
-        return correctObjectName(columnName);
-    }
-
-    public String correctPrimaryKeyName(String pkName) {
-        return correctObjectName(pkName);
-    }
-
-    public String correctForeignKeyName(String fkName) {
-        return correctObjectName(fkName);
-    }
-
-    public String correctIndexName(String indexName) {
-        return correctObjectName(indexName);
-    }
-
-    protected String correctObjectName(String objectName) {
+    public String correctObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
         return objectName;
     }
 
@@ -278,15 +308,27 @@ public abstract class AbstractDatabase implements Database {
         }
         return null;
     }
-    
+
+    public void setDefaultCatalogName(String defaultCatalogName) {
+        this.defaultCatalogName = defaultCatalogName;
+    }
+
     public void setDefaultSchemaName(String schemaName) {
         this.defaultSchemaName = schemaName;
     }
 
     /**
-     * Returns system (undroppable) tables and views.
+     * Returns system (undroppable) views.
      */
-    protected Set<String> getSystemTablesAndViews() {
+    protected Set<String> getSystemTables() {
+        return new HashSet<String>();
+    }
+
+
+    /**
+     * Returns system (undroppable) views.
+     */
+    protected Set<String> getSystemViews() {
         return new HashSet<String>();
     }
 
@@ -687,27 +729,13 @@ public abstract class AbstractDatabase implements Database {
     public boolean isCaseSensitive() {
         if (connection != null) {
             try {
-                return !((JdbcConnection) connection).getUnderlyingConnection().getMetaData().supportsMixedCaseIdentifiers();
+                return ((JdbcConnection) connection).getUnderlyingConnection().getMetaData().supportsMixedCaseIdentifiers();
             } catch (SQLException e) {
                 LogFactory.getLogger().warning("Cannot determine case sensitivity from JDBC driver", e);
                 return false;
             }
         }
         return false;
-    }
-
-    public boolean objectNamesEqual(String name1, String name2) {
-        if (name1 == null && name2 == null) {
-            return true;
-        }
-        if (name1 == null || name2 == null) {
-            return false;
-        }
-        if (isCaseSensitive()) {
-            return name1.equals(name2);
-        } else {
-            return name1.equalsIgnoreCase(name2);
-        }
     }
 
     public boolean isReservedWord(String string) {
@@ -815,31 +843,31 @@ public abstract class AbstractDatabase implements Database {
 
     public boolean isSystemTable(Schema schema, String tableName) {
         schema = correctSchema(schema);
-        if (this.objectNamesEqual("information_schema", schema.getName())) {
-            return true;
-        } else if (this.objectNamesEqual(tableName, getDatabaseChangeLogLockTableName())) {
-            return true;
-        } else if (getSystemTablesAndViews().contains(tableName)) {
-            return true;
-        }
-        return false;
+        return "information_schema".equalsIgnoreCase(schema.getName()) || getSystemTables().contains(tableName);
     }
 
     public boolean isSystemView(Schema schema, String viewName) {
         schema = correctSchema(schema);
-        if (this.objectNamesEqual("information_schema", schema.getName())) {
+        if ("information_schema".equalsIgnoreCase(schema.getName())) {
             return true;
-        } else if (getSystemTablesAndViews().contains(viewName)) {
+        } else if (getSystemViews().contains(viewName)) {
             return true;
         }
         return false;
     }
 
-    public boolean isLiquibaseTable(String tableName) {
-        return this.objectNamesEqual(tableName, this.getDatabaseChangeLogTableName()) || this.objectNamesEqual(tableName, this.getDatabaseChangeLogLockTableName());
+    public boolean isLiquibaseTable(Schema schema, String tableName) {
+        if (!schema.equals(correctSchema(new Schema(getLiquibaseCatalogName(), getLiquibaseSchemaName())), this)) {
+            return false;
+        }
+        if (isCaseSensitive()) {
+            return tableName.equals(this.getDatabaseChangeLogTableName()) || tableName.equals(this.getDatabaseChangeLogLockTableName());
+        } else {
+            return tableName.equalsIgnoreCase(this.getDatabaseChangeLogTableName()) || tableName.equalsIgnoreCase(this.getDatabaseChangeLogLockTableName());
+        }
     }
 
-// ------- DATABASE TAGGING METHODS ---- //
+    // ------- DATABASE TAGGING METHODS ---- //
 
     /**
      * Tags the database changelog with the given string.
@@ -871,16 +899,12 @@ public abstract class AbstractDatabase implements Database {
     @Override
     public String toString() {
         if (getConnection() == null) {
-            return getTypeName() + " Database";
+            return getShortName() + " Database";
         }
 
         return getConnection().getConnectionUserName() + " @ " + getConnection().getURL() + (getDefaultSchemaName() == null ? "" : " (Default Schema: " + getDefaultSchemaName() + ")");
     }
 
-
-    public boolean shouldQuoteValue(String value) {
-        return true;
-    }
 
     public String getViewDefinition(Schema schema, String viewName) throws DatabaseException {
         schema = correctSchema(schema);
@@ -892,43 +916,51 @@ public abstract class AbstractDatabase implements Database {
     }
 
     public String escapeTableName(String catalogName, String schemaName, String tableName) {
-        if (schemaName == null) {
-            schemaName = getDefaultSchemaName();
-        }
+        return escapeDatabaseObject(catalogName, schemaName, tableName, Table.class);
+    }
 
-        if (StringUtils.trimToNull(schemaName) == null || !supportsSchemas()) {
-            return escapeDatabaseObject(tableName);
+    public String escapeDatabaseObject(String catalogName, String schemaName, String objectName, Class<? extends DatabaseObject> objectType) {
+        if (catalogName == null && schemaName == null) {
+            return escapeDatabaseObject(objectName, objectType);
+        }
+        if (!supportsCatalogs() && !supportsSchemas()) {
+            return escapeDatabaseObject(objectName, objectType);
+        } else if (supportsCatalogs() && supportsSchemas()) {
+//            Schema schema = correctSchema(new Schema(catalogName, schemaName));
+//            return escapeDatabaseObject(schema.getCatalogName())+"."+escapeDatabaseObject(schema.getName())+"."+escapeDatabaseObject(objectName);
+            catalogName = StringUtils.trimToNull(catalogName);
+            schemaName = StringUtils.trimToNull(schemaName);
+            if (catalogName == null && schemaName == null) {
+                return escapeDatabaseObject(objectName, objectType);
+            } else if (catalogName == null) {
+                return escapeDatabaseObject(schemaName, Schema.class)+"."+escapeDatabaseObject(objectName, objectType);
+            } else {
+                return escapeDatabaseObject(catalogName, Catalog.class)+"."+escapeDatabaseObject(schemaName, Schema.class)+"."+escapeDatabaseObject(objectName, objectType);
+            }
         } else {
-            return escapeDatabaseObject(schemaName) + "." + escapeDatabaseObject(tableName);
+            catalogName = getAssumedCatalogName(catalogName, schemaName);
+            if (StringUtils.trimToNull(catalogName) == null) {
+                return escapeDatabaseObject(objectName, objectType);
+            } else {
+                return escapeDatabaseObject(catalogName, Catalog.class)+"."+escapeDatabaseObject(objectName, objectType);
+            }
         }
     }
 
-    public String escapeDatabaseObject(String objectName) {
+    public String escapeDatabaseObject(String objectName, Class<? extends DatabaseObject> objectType) {
         return objectName;
     }
 
     public String escapeIndexName(String catalogName, String schemaName, String indexName) {
-        if (StringUtils.trimToNull(schemaName) == null || !supportsSchemas()) {
-            return escapeDatabaseObject(indexName);
-        } else {
-            return escapeDatabaseObject(schemaName) + "." + escapeDatabaseObject(indexName);
-        }
+        return escapeDatabaseObject(catalogName, schemaName, indexName, Index.class);
     }
 
     public String escapeSequenceName(String catalogName, String schemaName, String sequenceName) {
-        if (schemaName == null) {
-            schemaName = getDefaultSchemaName();
-        }
-
-        if (StringUtils.trimToNull(schemaName) == null || !supportsSchemas()) {
-            return escapeDatabaseObject(sequenceName);
-        } else {
-            return escapeDatabaseObject(schemaName) + "." + escapeDatabaseObject(sequenceName);
-        }
+        return escapeDatabaseObject(catalogName, schemaName, sequenceName, Sequence.class);
     }
 
     public String escapeConstraintName(String constraintName) {
-        return escapeDatabaseObject(constraintName);
+        return escapeDatabaseObject(constraintName, Index.class);
     }
 
     public String escapeColumnName(String catalogName, String schemaName, String tableName, String columnName) {
@@ -936,7 +968,7 @@ public abstract class AbstractDatabase implements Database {
             return columnName;
         }
 
-        return escapeDatabaseObject(columnName);
+        return escapeDatabaseObject(columnName, Column.class);
     }
 
     public String escapeColumnNameList(String columnNames) {
@@ -945,7 +977,7 @@ public abstract class AbstractDatabase implements Database {
             if (sb.length() > 0) {
                 sb.append(", ");
             }
-            sb.append(escapeDatabaseObject(columnName.trim()));
+            sb.append(escapeDatabaseObject(columnName.trim(), Column.class));
         }
         return sb.toString();
 
@@ -964,7 +996,7 @@ public abstract class AbstractDatabase implements Database {
     }
 
     public String escapeViewName(String catalogName, String schemaName, String viewName) {
-        return escapeTableName(catalogName, schemaName, viewName);
+        return escapeDatabaseObject(catalogName, schemaName, viewName, View.class);
     }
 
     /**
@@ -1177,7 +1209,7 @@ public abstract class AbstractDatabase implements Database {
      * @throws liquibase.exception.DatabaseException
      *
      */
-    public boolean isLocalDatabase() throws DatabaseException {
+    public boolean isSafeToRunUpdate() throws DatabaseException {
         DatabaseConnection connection = getConnection();
         if (connection == null) {
             return true;
@@ -1258,11 +1290,11 @@ public abstract class AbstractDatabase implements Database {
         return DatabaseSnapshotGeneratorFactory.getInstance().getGenerator(this).getTable(schema, tableName, this);
     }
 
-    public List<DatabaseFunction> getDatabaseFunctions() {
-        return databaseFunctions;
+    public List<DatabaseFunction> getDateFunctions() {
+        return dateFunctions;
     }
 
-    public void reset() {
+    public void resetInternalState() {
         this.ranChangeSetList = null;
         this.hasDatabaseChangeLogLockTable = false;
     }
@@ -1277,5 +1309,13 @@ public abstract class AbstractDatabase implements Database {
 
     public void enableForeignKeyChecks() throws DatabaseException {
         throw new DatabaseException("ForeignKeyChecks Management not supported");
+    }
+
+    public boolean equals(DatabaseObject otherObject, Database accordingTo) {
+        return otherObject.getClass().equals(this.getClass());
+    }
+
+    public boolean equals(String otherObject, Database accordingTo) {
+        return this.getName().equals(otherObject);
     }
 }

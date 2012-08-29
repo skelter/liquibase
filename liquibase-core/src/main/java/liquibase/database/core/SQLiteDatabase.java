@@ -49,7 +49,7 @@ public class SQLiteDatabase extends AbstractDatabase {
     }
     
 
-    public String getTypeName() {
+    public String getShortName() {
         return "sqlite";
     }
 
@@ -190,7 +190,7 @@ public class SQLiteDatabase extends AbstractDatabase {
     }
     
     @Override
-    protected Set<String> getSystemTablesAndViews() {
+    protected Set<String> getSystemViews() {
         return systemTables;
     }
 

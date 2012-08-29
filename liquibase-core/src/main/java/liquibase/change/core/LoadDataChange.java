@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@ChangeClass(name="loadData", description = "Load Data", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
+@DatabaseChange(name="loadData", description = "Load Data", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
 public class LoadDataChange extends AbstractChange implements ChangeWithColumns<LoadDataColumnConfig> {
 
     private String catalogName;
@@ -32,7 +32,7 @@ public class LoadDataChange extends AbstractChange implements ChangeWithColumns<
 
     private List<LoadDataColumnConfig> columns = new ArrayList<LoadDataColumnConfig>();
 
-    @ChangeProperty(mustApplyTo ="table.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="table.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -41,7 +41,7 @@ public class LoadDataChange extends AbstractChange implements ChangeWithColumns<
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="table.schema")
+    @DatabaseChangeProperty(mustApplyTo ="table.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -50,7 +50,7 @@ public class LoadDataChange extends AbstractChange implements ChangeWithColumns<
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "table")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "table")
     public String getTableName() {
         return tableName;
     }
@@ -59,7 +59,7 @@ public class LoadDataChange extends AbstractChange implements ChangeWithColumns<
         this.tableName = tableName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getFile() {
         return file;
     }
@@ -97,7 +97,7 @@ public class LoadDataChange extends AbstractChange implements ChangeWithColumns<
     }
 
     public List<LoadDataColumnConfig> getColumns() {
-        return (List<LoadDataColumnConfig>) columns;
+        return columns;
     }
 
     public SqlStatement[] generateStatements(Database database) {
@@ -111,7 +111,7 @@ public class LoadDataChange extends AbstractChange implements ChangeWithColumns<
             }
 
             List<SqlStatement> statements = new ArrayList<SqlStatement>();
-            String[] line = null;
+            String[] line;
             int lineNumber = 0;
 
             while ((line = reader.readNext()) != null) {
@@ -133,7 +133,7 @@ public class LoadDataChange extends AbstractChange implements ChangeWithColumns<
                     if (columnConfig != null) {
                         columnName = columnConfig.getName();
 
-                        if (columnConfig.getType().equalsIgnoreCase("SKIP")) {
+                        if ("skip".equalsIgnoreCase(columnConfig.getType())) {
                             continue;
                         }
 
@@ -214,9 +214,7 @@ public class LoadDataChange extends AbstractChange implements ChangeWithColumns<
         	quotchar = this.quotchar.charAt(0);
         }
 
-        CSVReader reader = new CSVReader(streamReader, separator.charAt(0), quotchar );
-
-        return reader;
+        return new CSVReader(streamReader, separator.charAt(0), quotchar );
     }
 
     protected InsertStatement createStatement(String catalogName, String schemaName, String tableName){

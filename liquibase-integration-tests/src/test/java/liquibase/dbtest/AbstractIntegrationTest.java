@@ -120,15 +120,26 @@ public abstract class AbstractIntegrationTest {
             DatabaseSnapshotGeneratorFactory.resetAll();
             LockService.getInstance(database).forceReleaseLock();
             database.dropDatabaseObjects(Schema.DEFAULT);
+
             if (database.supportsSchemas()) {
-                database.dropDatabaseObjects(new Schema(DatabaseTestContext.ALT_CATALOG, DatabaseTestContext.ALT_SCHEMA));
-            } else if (database.supportsCatalogs()) {
-                database.dropDatabaseObjects(new Schema(DatabaseTestContext.ALT_SCHEMA, null));
+                database.dropDatabaseObjects(new Schema((String) null, DatabaseTestContext.ALT_SCHEMA));
+            }
+
+            if (supportsAltCatalogTests()) {
+                if (database.supportsSchemas() && database.supportsCatalogs()) {
+                    database.dropDatabaseObjects(new Schema(DatabaseTestContext.ALT_CATALOG, DatabaseTestContext.ALT_SCHEMA));
+                } else if (database.supportsCatalogs()) {
+                    database.dropDatabaseObjects(new Schema((String) null, DatabaseTestContext.ALT_SCHEMA));
+                }
             }
             database.commit();
             DatabaseSnapshotGeneratorFactory.resetAll();
 
         }
+    }
+
+    protected boolean supportsAltCatalogTests() {
+        return database.supportsCatalogs();
     }
 
     protected Properties createProperties() {
@@ -145,9 +156,9 @@ public abstract class AbstractIntegrationTest {
             database.setDefaultSchemaName(null);
 //            database.close();
         }
-//        ServiceLocator.reset();
+//        ServiceLocator.resetInternalState();
         DatabaseSnapshotGeneratorFactory.resetAll();
-//        DatabaseFactory.reset();
+//        DatabaseFactory.resetInternalState();
     }
 
     protected boolean shouldRollBack() {
@@ -161,7 +172,7 @@ public abstract class AbstractIntegrationTest {
 
     private Liquibase createLiquibase(String changeLogFile, ResourceAccessor resourceAccessor) throws LiquibaseException {
         ExecutorService.getInstance().clearExecutor(database);
-        database.reset();
+        database.resetInternalState();
         return new Liquibase(changeLogFile, resourceAccessor, database);
     }
 
@@ -450,7 +461,7 @@ public abstract class AbstractIntegrationTest {
             }
 
             DatabaseSnapshot emptyAgainSnapshot = DatabaseSnapshotGeneratorFactory.getInstance().createSnapshot(database, new DiffControl());
-            assertEquals(1, emptyAgainSnapshot.getDatabaseObjects(migratedSnapshot.getSchemas().iterator().next(), Table.class).size());
+            assertEquals(0, emptyAgainSnapshot.getDatabaseObjects(migratedSnapshot.getSchemas().iterator().next(), Table.class).size());
             assertEquals(0, emptyAgainSnapshot.getDatabaseObjects(migratedSnapshot.getSchemas().iterator().next(), View.class).size());
         }
     }

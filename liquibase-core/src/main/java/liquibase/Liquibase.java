@@ -7,7 +7,6 @@ import liquibase.changelog.visitor.*;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.DatabaseFactory;
-import liquibase.database.structure.Catalog;
 import liquibase.database.structure.Schema;
 import liquibase.diff.DiffControl;
 import liquibase.diff.DiffGeneratorFactory;
@@ -523,6 +522,7 @@ public class Liquibase {
             LockService.getInstance(database).waitForLock();
 
             for (Schema schema : schemas) {
+                schema = database.correctSchema(schema);
                 log.info("Dropping Database Objects in schema: " + schema);
                 checkDatabaseChangeLogTable(false, null, null);
                 getDatabase().dropDatabaseObjects(schema);
@@ -589,8 +589,8 @@ public class Liquibase {
      * It is fine to run Liquibase against a "non-safe" database, the method is mainly used to determine if the user
      * should be prompted before continuing.
      */
-    public boolean isSafeToRunMigration() throws DatabaseException {
-        return getDatabase().isLocalDatabase();
+    public boolean isSafeToRunUpdate() throws DatabaseException {
+        return getDatabase().isSafeToRunUpdate();
     }
 
     /**
@@ -801,8 +801,8 @@ public class Liquibase {
             setChangeLogParameter("database.defaultSchemaNamePrefix", StringUtils.trimToNull(database.getDefaultSchemaName())==null?"":"."+database.getDefaultSchemaName());
             setChangeLogParameter("database.lineComment", database.getLineComment());
             setChangeLogParameter("database.liquibaseSchemaName", database.getLiquibaseSchemaName());
-            setChangeLogParameter("database.typeName", database.getTypeName());
-            setChangeLogParameter("database.isLocalDatabase", database.isLocalDatabase());
+            setChangeLogParameter("database.typeName", database.getShortName());
+            setChangeLogParameter("database.isSafeToRunUpdate", database.isSafeToRunUpdate());
             setChangeLogParameter("database.requiresPassword", database.requiresPassword());
             setChangeLogParameter("database.requiresUsername", database.requiresUsername());
             setChangeLogParameter("database.supportsForeignKeyDisable", database.supportsForeignKeyDisable());

@@ -1,10 +1,11 @@
 package liquibase.change.core;
 
 import liquibase.change.AbstractChange;
-import liquibase.change.ChangeClass;
+import liquibase.change.DatabaseChange;
 import liquibase.change.ChangeMetaData;
-import liquibase.change.ChangeProperty;
+import liquibase.change.DatabaseChangeProperty;
 import liquibase.database.Database;
+import liquibase.database.structure.Table;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.executor.Executor;
@@ -19,17 +20,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@ChangeClass(name="dropAllForeignKeyConstraints", description = "Drop All Foreign Key Constraints", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
+@DatabaseChange(name="dropAllForeignKeyConstraints", description = "Drop All Foreign Key Constraints", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
 public class DropAllForeignKeyConstraintsChange extends AbstractChange {
 
     private String baseTableCatalogName;
     private String baseTableSchemaName;
     private String baseTableName;
 
-    @ChangeProperty(includeInSerialization = false)
+    @DatabaseChangeProperty(includeInSerialization = false)
     private List<DropForeignKeyConstraintChange> childDropChanges;
 
-    @ChangeProperty(mustApplyTo ="table.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="table.catalog")
     public String getBaseTableCatalogName() {
         return baseTableCatalogName;
     }
@@ -38,7 +39,7 @@ public class DropAllForeignKeyConstraintsChange extends AbstractChange {
         this.baseTableCatalogName = baseTableCatalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="table.schema")
+    @DatabaseChangeProperty(mustApplyTo ="table.schema")
     public String getBaseTableSchemaName() {
         return baseTableSchemaName;
     }
@@ -47,7 +48,7 @@ public class DropAllForeignKeyConstraintsChange extends AbstractChange {
         this.baseTableSchemaName = baseTableSchemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "table")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "table")
     public String getBaseTableName() {
         return baseTableName;
     }
@@ -94,7 +95,7 @@ public class DropAllForeignKeyConstraintsChange extends AbstractChange {
                             (String) result.get(FindForeignKeyConstraintsStatement.RESULT_COLUMN_BASE_TABLE_NAME);
                     String constraintName =
                             (String) result.get(FindForeignKeyConstraintsStatement.RESULT_COLUMN_CONSTRAINT_NAME);
-                    if (database.objectNamesEqual(getBaseTableName(), baseTableName)) {
+                    if (new Table(getBaseTableName()).equals(new Table(baseTableName), database)) {
                         if( !handledConstraints.contains(constraintName)) {
                             DropForeignKeyConstraintChange dropForeignKeyConstraintChange =
                                     new DropForeignKeyConstraintChange();
@@ -118,7 +119,7 @@ public class DropAllForeignKeyConstraintsChange extends AbstractChange {
     }
 
     @Override
-    public boolean requiresUpdatedDatabaseMetadata(Database database) {
+    public boolean queriesDatabase(Database database) {
         return true;
     }
 }

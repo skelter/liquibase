@@ -6,7 +6,6 @@ import liquibase.statement.SqlStatement;
 import liquibase.statement.DatabaseFunction;
 import liquibase.statement.core.AddDefaultValueStatement;
 import liquibase.util.ISODateFormat;
-import liquibase.util.StringUtils;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -15,7 +14,7 @@ import java.util.Locale;
 /**
  * Sets a new default value to an existing column.
  */
-@ChangeClass(name="addDefaultValue", description = "Add Default Value", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "column")
+@DatabaseChange(name="addDefaultValue", description = "Add Default Value", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "column")
 public class AddDefaultValueChange extends AbstractChange {
 
     private String catalogName;
@@ -29,7 +28,7 @@ public class AddDefaultValueChange extends AbstractChange {
     private Boolean defaultValueBoolean;
     private DatabaseFunction defaultValueComputed;
 
-    @ChangeProperty(mustApplyTo ="column.relation.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="column.relation.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -38,7 +37,7 @@ public class AddDefaultValueChange extends AbstractChange {
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="column.relation.schema")
+    @DatabaseChangeProperty(mustApplyTo ="column.relation.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -47,7 +46,7 @@ public class AddDefaultValueChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "column.relation")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "column.relation")
     public String getTableName() {
         return tableName;
     }
@@ -56,7 +55,7 @@ public class AddDefaultValueChange extends AbstractChange {
         this.tableName = tableName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "column")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "column")
     public String getColumnName() {
         return columnName;
     }
@@ -121,11 +120,10 @@ public class AddDefaultValueChange extends AbstractChange {
         if (getDefaultValue() != null) {
             defaultValue = getDefaultValue();
         } else if (getDefaultValueBoolean() != null) {
-            defaultValue = Boolean.valueOf(getDefaultValueBoolean());
+            defaultValue = getDefaultValueBoolean();
         } else if (getDefaultValueNumeric() != null) {
             try {
-                defaultValue = NumberFormat.getInstance(Locale.US).
-                	parse(getDefaultValueNumeric()); 
+                defaultValue = NumberFormat.getInstance(Locale.US).parse(getDefaultValueNumeric());
             } catch (ParseException e) {
             	defaultValue = new DatabaseFunction(getDefaultValueNumeric());
             }

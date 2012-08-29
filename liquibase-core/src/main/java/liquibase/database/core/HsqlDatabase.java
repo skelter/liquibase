@@ -2,6 +2,7 @@ package liquibase.database.core;
 
 import liquibase.database.AbstractDatabase;
 import liquibase.database.DatabaseConnection;
+import liquibase.database.structure.DatabaseObject;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.DateParseException;
 import liquibase.util.ISODateFormat;
@@ -49,13 +50,18 @@ public class HsqlDatabase extends AbstractDatabase {
         return PRIORITY_DEFAULT;
     }
 
-    public String getTypeName() {
+    public String getShortName() {
         return "hsqldb";
     }
 
     @Override
-    protected String correctObjectName(String objectName) {
+    public String correctObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
         return objectName.toUpperCase();
+    }
+
+    @Override
+    public boolean supportsCatalogs() {
+        return false;
     }
 
     @Override
@@ -140,7 +146,7 @@ public class HsqlDatabase extends AbstractDatabase {
     }
 
     @Override
-    public String escapeDatabaseObject(String objectName) {
+    public String escapeDatabaseObject(String objectName, Class<? extends DatabaseObject> objectType) {
     	if (objectName != null) {
             if (keywords.contains(objectName.toUpperCase())) {
                 return "\""+objectName+"\"";

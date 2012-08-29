@@ -87,11 +87,11 @@ public class MaxDBDatabase extends AbstractDatabase {
     }
 
     @Override
-    public Set<String> getSystemTablesAndViews() {
+    public Set<String> getSystemViews() {
         return systemTablesAndViews;
     }
 
-    public String getTypeName() {
+    public String getShortName() {
         return "maxdb";
     }
 

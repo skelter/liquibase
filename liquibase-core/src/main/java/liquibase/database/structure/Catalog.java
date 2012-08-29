@@ -1,13 +1,14 @@
 package liquibase.database.structure;
 
+import liquibase.database.Database;
 import liquibase.util.StringUtils;
 
-public class Catalog {
+public class Catalog extends DatabaseObjectImpl {
 
     public static final String DEFAULT_NAME = "!DEFAULT_CATALOG!";
     public static final Catalog DEFAULT = new Catalog(DEFAULT_NAME);
 
-    private String name;
+    protected String name;
 
     public Catalog(String name) {
         if (StringUtils.trimToNull(name) == null) {
@@ -17,10 +18,15 @@ public class Catalog {
         }
     }
 
+    public DatabaseObject[] getContainingObjects() {
+        return null;
+    }
+
+    public Schema getSchema() {
+        return null;
+    }
+
     public String getName() {
-        if (name.equals(DEFAULT_NAME)) {
-            return null;
-        }
         return name;
     }
     
@@ -36,8 +42,27 @@ public class Catalog {
         return true;
     }
 
+
+
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
+    }
+
+    public static class DatabaseSpecific extends Catalog {
+        private Database database;
+
+        public DatabaseSpecific(String name, Database database) {
+            super(name);
+            this.database = database;
+            if (name == null) {
+                this.name = null;
+            }
+        }
+
+        public Database getDatabase() {
+            return database;
+        }
+
     }
 }
