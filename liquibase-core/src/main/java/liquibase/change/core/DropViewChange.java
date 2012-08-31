@@ -1,25 +1,24 @@
 package liquibase.change.core;
 
 import liquibase.change.AbstractChange;
-import liquibase.change.ChangeClass;
+import liquibase.change.DatabaseChange;
 import liquibase.change.ChangeMetaData;
-import liquibase.change.ChangeProperty;
+import liquibase.change.DatabaseChangeProperty;
 import liquibase.database.Database;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.DropViewStatement;
-import liquibase.util.StringUtils;
 
 /**
  * Drops an existing view.
  */
-@ChangeClass(name="dropView", description = "Drop View", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "view")
+@DatabaseChange(name="dropView", description = "Drop View", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "view")
 public class DropViewChange extends AbstractChange {
     private String catalogName;
     private String schemaName;
     private String viewName;
 
 
-    @ChangeProperty(mustApplyTo ="view.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="view.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -28,7 +27,7 @@ public class DropViewChange extends AbstractChange {
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="view.schema")
+    @DatabaseChangeProperty(mustApplyTo ="view.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -37,7 +36,7 @@ public class DropViewChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "view")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "view")
     public String getViewName() {
         return viewName;
     }

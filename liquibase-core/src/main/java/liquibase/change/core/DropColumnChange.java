@@ -9,7 +9,6 @@ import liquibase.database.structure.Index;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.DropColumnStatement;
 import liquibase.statement.core.ReorganizeTableStatement;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
 /**
  * Drops an existing column from a table.
  */
-@ChangeClass(name="dropColumn", description = "Drop Column", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "column")
+@DatabaseChange(name="dropColumn", description = "Drop Column", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "column")
 public class DropColumnChange extends AbstractChange {
 
     private String catalogName;
@@ -25,7 +24,7 @@ public class DropColumnChange extends AbstractChange {
     private String tableName;
     private String columnName;
 
-    @ChangeProperty(requiredForDatabase = "all",mustApplyTo = "column")
+    @DatabaseChangeProperty(requiredForDatabase = "all",mustApplyTo = "column")
     public String getColumnName() {
         return columnName;
     }
@@ -35,7 +34,7 @@ public class DropColumnChange extends AbstractChange {
     }
 
 
-    @ChangeProperty(mustApplyTo ="column.relation.schema.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="column.relation.schema.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -44,7 +43,7 @@ public class DropColumnChange extends AbstractChange {
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="column.relation.schema")
+    @DatabaseChangeProperty(mustApplyTo ="column.relation.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -53,7 +52,7 @@ public class DropColumnChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "column.relation")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "column.relation")
     public String getTableName() {
         return tableName;
     }
@@ -79,42 +78,42 @@ public class DropColumnChange extends AbstractChange {
         return statements.toArray(new SqlStatement[statements.size()]);
     }
     
-    private SqlStatement[] generateStatementsForSQLiteDatabase(Database database) {
-    	
-    	// SQLite does not support this ALTER TABLE operation until now.
-		// For more information see: http://www.sqlite.org/omitted.html.
-		// This is a small work around...
-		
-    	List<SqlStatement> statements = new ArrayList<SqlStatement>();
-        
-		// define alter table logic
-		AlterTableVisitor rename_alter_visitor = new AlterTableVisitor() {
-			public ColumnConfig[] getColumnsToAdd() {
-				return new ColumnConfig[0];
-			}
-			public boolean createThisColumn(ColumnConfig column) {
-				return !column.getName().equals(getColumnName());
-			}
-			public boolean copyThisColumn(ColumnConfig column) {
-				return !column.getName().equals(getColumnName());
-			}
-			public boolean createThisIndex(Index index) {
-				return !index.getColumns().contains(getColumnName());
-			}
-		};  
-		
-    	try {
-    		// alter table
-			statements.addAll(SQLiteDatabase.getAlterTableStatements(
-					rename_alter_visitor,
-					database,getCatalogName(), getSchemaName(),getTableName()));
-			
-		}  catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return statements.toArray(new SqlStatement[statements.size()]);
-    }
+//    private SqlStatement[] generateStatementsForSQLiteDatabase(Database database) {
+//
+//    	// SQLite does not support this ALTER TABLE operation until now.
+//		// For more information see: http://www.sqlite.org/omitted.html.
+//		// This is a small work around...
+//
+//    	List<SqlStatement> statements = new ArrayList<SqlStatement>();
+//
+//		// define alter table logic
+//		AlterTableVisitor rename_alter_visitor = new AlterTableVisitor() {
+//			public ColumnConfig[] getColumnsToAdd() {
+//				return new ColumnConfig[0];
+//			}
+//			public boolean createThisColumn(ColumnConfig column) {
+//				return !column.getName().equals(getColumnName());
+//			}
+//			public boolean copyThisColumn(ColumnConfig column) {
+//				return !column.getName().equals(getColumnName());
+//			}
+//			public boolean createThisIndex(Index index) {
+//				return !index.getColumns().contains(getColumnName());
+//			}
+//		};
+//
+//    	try {
+//    		// alter table
+//			statements.addAll(SQLiteDatabase.getAlterTableStatements(
+//					rename_alter_visitor,
+//					database,getCatalogName(), getSchemaName(),getTableName()));
+//
+//		}  catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//		return statements.toArray(new SqlStatement[statements.size()]);
+//    }
 
     public String getConfirmationMessage() {
         return "Column " + getTableName() + "." + getColumnName() + " dropped";
