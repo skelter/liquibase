@@ -1,5 +1,48 @@
 <HTML>
     <BODY>
         Liquibase is a tool for managing and executing database changes.
+
+        <h1> Core Subsystems by Function </h1>
+
+        <h2> DB Refactorings - ChangeLogs, changes and preconditions; parsers and serializers.</h2>
+        <ul>
+          <li>liquibase.change</li>
+          <li>liquibase.changelog</li>
+        *   liquibase.parser
+        *   liquibase.serializer
+        *   liquibase.precondition
+        *   liquibase.datatype
+        *   liquibase.sqlgenerator
+        *   liquibase.statement
+        *   liquibase.sql
+        </ul>
+        *  Snapshots and Diffs
+        *   liquibase.diff
+        *   liquibase.snapshot
+        *  DB Interfacing - connections, database-specific implementations of changes and SQL, executors and the locking service.
+        *   liquibase.database
+        * core
+        * jvm
+        * structure
+        *   liquibase.executor
+        *   liquibase.lockservice
+        *  DB Doc - generation of beautiful, meaningful documentation
+        * liquibase.dbdoc
+        *  Integration - Using Liquibase from various build systems, J2EE containers, dependency injection and command line.
+        * liquibase.integration
+        * ant
+        * cdi
+        * commandline
+        * servlet
+        * spring
+        *  Internals - programmatic necessities having little to do with databases:
+        logging, resource loading, service location, file io, etc.
+        *  liquibase.logger
+        *  liquibase.resource
+        *  liquibase.servicelocator
+        *  liquibase.utils
+        *  liquibase.exception
+        *  Primary programatic entry
+        * liquibase.Liquibase
     </BODY>
 </HTML>
