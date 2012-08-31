@@ -317,6 +317,19 @@ public abstract class JdbcDatabaseSnapshotGenerator implements DatabaseSnapshotG
         return type;
     }
 
+    /**
+     * Seat of most generator logic: creates a snapshot by gathering objects from the database.  The types gathered are
+     * <ul>
+     *     <li>tables</li>
+     *     <li>views</li>
+     *     <li>foreign keys</li>
+     *     <li>primary keys</li>
+     *     <li>columns</li>
+     *     <li>unique constraints</li>
+     *     <li>indexes</li>
+     *     <li>sequences</li>
+     * </ul>
+     */
     public DatabaseSnapshot createSnapshot(Database database, DiffControl diffControl, DiffControl.DatabaseRole type) throws DatabaseException {
         try {
             DatabaseSnapshot snapshot = new DatabaseSnapshot(database, diffControl.getSchemas(type));
