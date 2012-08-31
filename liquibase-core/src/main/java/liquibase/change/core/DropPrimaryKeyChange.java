@@ -7,7 +7,6 @@ import liquibase.database.core.SQLiteDatabase.AlterTableVisitor;
 import liquibase.database.structure.Index;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.DropPrimaryKeyStatement;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,14 +14,14 @@ import java.util.List;
 /**
  * Removes an existing primary key.
  */
-@ChangeClass(name="dropPrimaryKey", description = "Drop Primary Key", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "primaryKey")
+@DatabaseChange(name="dropPrimaryKey", description = "Drop Primary Key", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "primaryKey")
 public class DropPrimaryKeyChange extends AbstractChange {
     private String catalogName;
     private String schemaName;
     private String tableName;
     private String constraintName;
 
-    @ChangeProperty(mustApplyTo ="primaryKey.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="primaryKey.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -31,7 +30,7 @@ public class DropPrimaryKeyChange extends AbstractChange {
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="primaryKey.schema")
+    @DatabaseChangeProperty(mustApplyTo ="primaryKey.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -40,7 +39,7 @@ public class DropPrimaryKeyChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "primaryKey.table")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "primaryKey.table")
     public String getTableName() {
         return tableName;
     }
@@ -49,7 +48,7 @@ public class DropPrimaryKeyChange extends AbstractChange {
         this.tableName = tableName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "primaryKey")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "primaryKey")
     public String getConstraintName() {
         return constraintName;
     }
@@ -60,10 +59,10 @@ public class DropPrimaryKeyChange extends AbstractChange {
 
     public SqlStatement[] generateStatements(Database database) {
     	
-//todo    	if (database instanceof SQLiteDatabase) {
-//    		// return special statements for SQLite databases
-//    		return generateStatementsForSQLiteDatabase(database);
-//        }
+    	if (database instanceof SQLiteDatabase) {
+    		// return special statements for SQLite databases
+    		return generateStatementsForSQLiteDatabase(database);
+        }
     	
         return new SqlStatement[]{
                 new DropPrimaryKeyStatement(getCatalogName(), getSchemaName(), getTableName(), getConstraintName()),

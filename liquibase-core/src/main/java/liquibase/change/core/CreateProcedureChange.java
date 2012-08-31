@@ -1,21 +1,21 @@
 package liquibase.change.core;
 
 import liquibase.change.AbstractChange;
-import liquibase.change.ChangeClass;
+import liquibase.change.DatabaseChange;
 import liquibase.change.ChangeMetaData;
-import liquibase.change.ChangeProperty;
+import liquibase.change.DatabaseChangeProperty;
 import liquibase.database.Database;
 import liquibase.database.core.OracleDatabase;
 import liquibase.database.core.DB2Database;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.RawSqlStatement;
 
-@ChangeClass(name = "createProcedure", description = "Create Procedure", priority = ChangeMetaData.PRIORITY_DEFAULT)
+@DatabaseChange(name = "createProcedure", description = "Create Procedure", priority = ChangeMetaData.PRIORITY_DEFAULT)
 public class CreateProcedureChange extends AbstractChange {
     private String comments;
     private String procedureBody;
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getProcedureBody() {
         return procedureBody;
     }

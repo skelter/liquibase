@@ -3,12 +3,8 @@ package liquibase.change.core;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import liquibase.change.*;
-import liquibase.changelog.ChangeLogParameters;
 import liquibase.database.Database;
 import liquibase.exception.SetupException;
 import liquibase.exception.ValidationErrors;
@@ -27,7 +23,7 @@ import liquibase.util.StringUtils;
  * @link{#setFileOpener(FileOpener)} before calling setPath otherwise the
  * file will likely not be found.
  */
-@ChangeClass(name="sqlFile", description = "SQL From File", priority = ChangeMetaData.PRIORITY_DEFAULT)
+@DatabaseChange(name="sqlFile", description = "SQL From File", priority = ChangeMetaData.PRIORITY_DEFAULT)
 public class SQLFileChange extends AbstractSQLChange {
 
     private String path;
@@ -35,7 +31,7 @@ public class SQLFileChange extends AbstractSQLChange {
     private Boolean relativeToChangelogFile;
 
 
-    @ChangeProperty(requiredForDatabase = "all")
+    @DatabaseChangeProperty(requiredForDatabase = "all")
     public String getPath() {
         return path;
     }
@@ -149,7 +145,7 @@ public class SQLFileChange extends AbstractSQLChange {
      * @param file The file name to try and find.
      * @return True if the file was found and loaded, false otherwise.
      */
-    private boolean loadFromClasspath(String file) throws SetupException {
+    private boolean loadFromClasspath(String file) {
         if (relativeToChangelogFile != null && relativeToChangelogFile) {
             file = getChangeSet().getFilePath().replaceFirst("/[^/]*$", "") + "/" + file;
         }

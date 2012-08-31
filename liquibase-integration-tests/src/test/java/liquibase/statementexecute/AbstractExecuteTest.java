@@ -14,6 +14,7 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.database.structure.Schema;
+import liquibase.database.structure.Table;
 import liquibase.datatype.DataTypeFactory;
 import liquibase.database.example.ExampleCustomDatabase;
 import liquibase.database.core.MockDatabase;
@@ -117,7 +118,7 @@ public abstract class AbstractExecuteTest {
                 try {
                     statement.execute(sqlToRun);
                 } catch (Exception e) {
-                    System.out.println("Failed to execute against " + availableDatabase.getTypeName() + ": " + sqlToRun);
+                    System.out.println("Failed to execute against " + availableDatabase.getShortName() + ": " + sqlToRun);
                     throw e;
 
                 }
@@ -176,7 +177,7 @@ public abstract class AbstractExecuteTest {
         while ((lastIndex = convertedSql.indexOf("[", lastIndex)) >= 0) {
             String objectName = convertedSql.substring(lastIndex + 1, convertedSql.indexOf("]", lastIndex));
             try {
-                convertedSql = convertedSql.replace("[" + objectName + "]", database.escapeDatabaseObject(objectName));
+                convertedSql = convertedSql.replace("[" + objectName + "]", database.escapeDatabaseObject(objectName, Table.class));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

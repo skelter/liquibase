@@ -4,9 +4,8 @@ import liquibase.change.*;
 import liquibase.database.Database;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.DeleteStatement;
-import liquibase.util.StringUtils;
 
-@ChangeClass(name="delete", description = "Delete Data", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
+@DatabaseChange(name="delete", description = "Delete Data", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "table")
 public class DeleteDataChange extends AbstractChange {
 
     private String catalogName;
@@ -16,7 +15,7 @@ public class DeleteDataChange extends AbstractChange {
     @TextNode(nodeName="where")
     private String whereClause;
 
-    @ChangeProperty(mustApplyTo ="table.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="table.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -25,7 +24,7 @@ public class DeleteDataChange extends AbstractChange {
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="table.schema")
+    @DatabaseChangeProperty(mustApplyTo ="table.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -34,7 +33,7 @@ public class DeleteDataChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "table")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "table")
     public String getTableName() {
         return tableName;
     }

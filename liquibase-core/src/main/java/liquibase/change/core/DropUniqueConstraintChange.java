@@ -8,7 +8,6 @@ import liquibase.database.core.SybaseASADatabase;
 import liquibase.database.structure.Index;
 import liquibase.statement.SqlStatement;
 import liquibase.statement.core.DropUniqueConstraintStatement;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.List;
 /**
  * Removes an existing unique constraint.
  */
-@ChangeClass(name="dropUniqueConstraint", description = "Drop Unique Constraint", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "uniqueConstraint")
+@DatabaseChange(name="dropUniqueConstraint", description = "Drop Unique Constraint", priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "uniqueConstraint")
 public class DropUniqueConstraintChange extends AbstractChange {
     private String catalogName;
     private String schemaName;
@@ -27,7 +26,7 @@ public class DropUniqueConstraintChange extends AbstractChange {
      */
     private String uniqueColumns;
 
-    @ChangeProperty(mustApplyTo ="uniqueConstraint.table.catalog")
+    @DatabaseChangeProperty(mustApplyTo ="uniqueConstraint.table.catalog")
     public String getCatalogName() {
         return catalogName;
     }
@@ -36,7 +35,7 @@ public class DropUniqueConstraintChange extends AbstractChange {
         this.catalogName = catalogName;
     }
 
-    @ChangeProperty(mustApplyTo ="uniqueConstraint.table.schema")
+    @DatabaseChangeProperty(mustApplyTo ="uniqueConstraint.table.schema")
     public String getSchemaName() {
         return schemaName;
     }
@@ -45,7 +44,7 @@ public class DropUniqueConstraintChange extends AbstractChange {
         this.schemaName = schemaName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "uniqueConstraint.table")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "uniqueConstraint.table")
     public String getTableName() {
         return tableName;
     }
@@ -54,7 +53,7 @@ public class DropUniqueConstraintChange extends AbstractChange {
         this.tableName = tableName;
     }
 
-    @ChangeProperty(requiredForDatabase = "all", mustApplyTo = "uniqueConstraint")
+    @DatabaseChangeProperty(requiredForDatabase = "all", mustApplyTo = "uniqueConstraint")
     public String getConstraintName() {
         return constraintName;
     }
@@ -86,47 +85,47 @@ public class DropUniqueConstraintChange extends AbstractChange {
         };
     }
     
-    private SqlStatement[] generateStatementsForSQLiteDatabase(Database database) {
-    	
-    	// SQLite does not support this ALTER TABLE operation until now.
-		// For more information see: http://www.sqlite.org/omitted.html.
-		// This is a small work around...
-    	
-    	// Note: The attribute "constraintName" is used to pass the column 
-    	// name instead of the constraint name.
-    	
-    	List<SqlStatement> statements = new ArrayList<SqlStatement>();
-    	
-		// define alter table logic
-		AlterTableVisitor rename_alter_visitor = new AlterTableVisitor() {
-			public ColumnConfig[] getColumnsToAdd() {
-				return new ColumnConfig[0];
-			}
-			public boolean copyThisColumn(ColumnConfig column) {
-				return true;
-			}
-			public boolean createThisColumn(ColumnConfig column) {
-				if (column.getName().equals(getConstraintName())) {
-    				column.getConstraints().setUnique(false);            					
-    			}        				
-				return true;
-			}
-			public boolean createThisIndex(Index index) {
-				return true;
-			}
-		};
-    		
-    	try {
-    		// alter table
-			statements.addAll(SQLiteDatabase.getAlterTableStatements(
-					rename_alter_visitor,
-					database,getCatalogName(), getSchemaName(),getTableName()));
-    	} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	
-    	return statements.toArray(new SqlStatement[statements.size()]);
-    }
+//    private SqlStatement[] generateStatementsForSQLiteDatabase(Database database) {
+//
+//    	// SQLite does not support this ALTER TABLE operation until now.
+//		// For more information see: http://www.sqlite.org/omitted.html.
+//		// This is a small work around...
+//
+//    	// Note: The attribute "constraintName" is used to pass the column
+//    	// name instead of the constraint name.
+//
+//    	List<SqlStatement> statements = new ArrayList<SqlStatement>();
+//
+//		// define alter table logic
+//		AlterTableVisitor rename_alter_visitor = new AlterTableVisitor() {
+//			public ColumnConfig[] getColumnsToAdd() {
+//				return new ColumnConfig[0];
+//			}
+//			public boolean copyThisColumn(ColumnConfig column) {
+//				return true;
+//			}
+//			public boolean createThisColumn(ColumnConfig column) {
+//				if (column.getName().equals(getConstraintName())) {
+//    				column.getConstraints().setUnique(false);
+//    			}
+//				return true;
+//			}
+//			public boolean createThisIndex(Index index) {
+//				return true;
+//			}
+//		};
+//
+//    	try {
+//    		// alter table
+//			statements.addAll(SQLiteDatabase.getAlterTableStatements(
+//					rename_alter_visitor,
+//					database,getCatalogName(), getSchemaName(),getTableName()));
+//    	} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//    	return statements.toArray(new SqlStatement[statements.size()]);
+//    }
 
     public String getConfirmationMessage() {
         return "Unique constraint "+getConstraintName()+" dropped from "+getTableName();

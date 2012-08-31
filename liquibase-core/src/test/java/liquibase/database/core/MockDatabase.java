@@ -126,7 +126,7 @@ public class MockDatabase implements Database {
         return 0;
     }
 
-    public String getTypeName() {
+    public String getShortName() {
         return null;
     }
 
@@ -144,6 +144,10 @@ public class MockDatabase implements Database {
 
     public String getDefaultCatalogName() {
         return null;
+    }
+
+    public void setDefaultCatalogName(String catalogName) throws DatabaseException {
+
     }
 
     public String getDefaultSchemaName()  {
@@ -290,10 +294,6 @@ public class MockDatabase implements Database {
         return false;
     }
 
-    public boolean shouldQuoteValue(String value) {
-        return true;
-    }
-
     public boolean supportsTablespaces() {
         return false;
     }
@@ -430,12 +430,16 @@ public class MockDatabase implements Database {
         return constraintName;
     }
     
-    public boolean isLocalDatabase() throws DatabaseException {
+    public boolean isSafeToRunUpdate() throws DatabaseException {
     	return true;
     }
 
-    public String escapeDatabaseObject(String objectName) {
+    public String escapeDatabaseObject(String objectName, Class<? extends DatabaseObject> objectType) {
         return objectName;
+    }
+
+    public String escapeDatabaseObject(String catalogname, String schemaName, String objectName, Class<? extends DatabaseObject> objectType) {
+        return catalogname+"."+schemaName+"."+objectName;
     }
 
     public void executeStatements(Change change, DatabaseChangeLog changeLog, List<SqlVisitor> sqlVisitors) throws LiquibaseException, UnsupportedChangeException {
@@ -474,11 +478,11 @@ public class MockDatabase implements Database {
         return new Date();
     }
 
-	public List<DatabaseFunction> getDatabaseFunctions() {
+	public List<DatabaseFunction> getDateFunctions() {
 		return null;
 	}
 
-    public void reset() {
+    public void resetInternalState() {
         
     }
     
@@ -506,35 +510,7 @@ public class MockDatabase implements Database {
         return schema;
     }
 
-    public String correctTableName(String tableName) {
-        return tableName;
-    }
-
-    public String correctConstraintName(String constraintName) {
-        return constraintName;
-    }
-
-    public String correctColumnName(String columnName) {
-        return columnName;
-    }
-
-    public String correctPrimaryKeyName(String pkName) {
-        return pkName;
-    }
-
-    public String correctForeignKeyName(String fkName) {
-        return fkName;
-    }
-
-    public String correctIndexName(String indexName) {
-        return indexName;
-    }
-
-    public String escapeSchemaName(String schemaName) {
-        return schemaName;
-    }
-
-    public String escapeCatalogName(String name) {
+    public String correctObjectName(String name, Class<? extends DatabaseObject> objectType) {
         return name;
     }
 
