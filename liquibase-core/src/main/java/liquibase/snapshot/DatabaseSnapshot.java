@@ -6,6 +6,26 @@ import liquibase.exception.UnexpectedLiquibaseException;
 
 import java.util.*;
 
+/**
+ * Describes the server-side objects in a database organized by Schema and then by type; used for diffs.
+ *
+ * <img src="doc-files/DatabaseSnapshot.png"/>
+ */
+/*
+ @startuml doc-files/DatabaseSnapshot.png
+   class DatabaseSnapshot {
+     -Database
+     -databaseChangeLogTable
+     -databaseChangeLogLockTable
+   }
+   DatabaseSnapshot "1..*" *- "1" SchemaSnapshot
+   (DatabaseSnapshot, SchemaSnapshot) .. Schema
+   class "Set<DatabaseObjects>" as DatabaseObjectSet
+   SchemaSnapshot "1..*" *- "1" DatabaseObjectSet
+   class "Class<? extends DatabaseObject>" as f <<T,#FF0000>>
+   (SchemaSnapshot, DatabaseObjectSet) .. f
+ @enduml
+ */
 public class DatabaseSnapshot {
 
     private Database database;
