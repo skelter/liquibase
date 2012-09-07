@@ -32,7 +32,7 @@ public class OracleDatabaseTest extends AbstractDatabaseTest {
     @Test
     public void escapeTableName_withSchema() {
         Database database = getDatabase();
-        assertEquals("tableName", database.escapeTableName("catalogName", "schemaName", "tableName"));
+        assertEquals("catalogName.tableName", database.escapeTableName("catalogName", "schemaName", "tableName"));
     }
 
     @Override
