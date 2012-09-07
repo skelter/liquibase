@@ -833,8 +833,7 @@ public abstract class AbstractDatabase implements Database {
     }
 
     public boolean supportsDropTableCascadeConstraints() {
-         return (this instanceof DerbyDatabase
-                 || this instanceof MSSQLDatabase
+         return (this instanceof MSSQLDatabase
                  || this instanceof FirebirdDatabase
                  || this instanceof SQLiteDatabase
                  || this instanceof SybaseDatabase
@@ -1292,6 +1291,18 @@ public abstract class AbstractDatabase implements Database {
 
     public List<DatabaseFunction> getDateFunctions() {
         return dateFunctions;
+    }
+
+    public boolean isFunction(String string) {
+        if (string.endsWith("()")) {
+            return true;
+        }
+        for (DatabaseFunction function : getDateFunctions()) {
+            if (function.toString().equalsIgnoreCase(string)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void resetInternalState() {

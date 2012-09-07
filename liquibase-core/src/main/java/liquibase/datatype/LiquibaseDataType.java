@@ -3,6 +3,7 @@ package liquibase.datatype;
 import liquibase.database.Database;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.servicelocator.PrioritizedService;
+import liquibase.statement.DatabaseFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,19 +86,22 @@ public abstract class LiquibaseDataType implements PrioritizedService {
     }
 
     public DatabaseDataType toDatabaseDataType(Database database) {
-        return new DatabaseDataType(name, getParameters());
+        return new DatabaseDataType(name.toUpperCase(), getParameters());
     }
 
-    public String objectToString(Object value, Database database) {
+    /**
+     * Returns the value object in a format to include in SQL. Quote if necessary.
+     */
+    public String objectToSql(Object value, Database database) {
         if (value == null || value.toString().equalsIgnoreCase("null")) {
             return null;
-        } else if (value.toString().equals("CURRENT_TIMESTAMP()") || value.toString().equals("NOW()")) {
+        } else if (isCurrentDateTimeFunction(value.toString(), database)) {
             return database.getCurrentDateTimeFunction();
         }
         return value.toString();
     }
     
-    public Object stringToObject(String value, Database database) {
+    public Object sqlToObject(String value, Database database) {
         return value;
     }
 
@@ -132,5 +136,11 @@ public abstract class LiquibaseDataType implements PrioritizedService {
     @Override
     public int hashCode() {
         return toString().hashCode();
+    }
+
+    protected boolean isCurrentDateTimeFunction(String string, Database database) {
+        return string.toLowerCase().startsWith("current_timestamp")
+                || string.toLowerCase().startsWith("current_datetime")
+                || database.getCurrentDateTimeFunction().equalsIgnoreCase(string);
     }
 }
