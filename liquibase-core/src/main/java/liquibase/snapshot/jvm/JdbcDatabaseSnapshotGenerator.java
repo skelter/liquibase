@@ -461,36 +461,67 @@ public abstract class JdbcDatabaseSnapshotGenerator implements DatabaseSnapshotG
     }
 
     private Map<String, Object> convertResultSetToMap(ResultSet rs) throws SQLException {
-        Class[] types = new Class[]{ //matches tableMetadata.getColumns() types. Ugly, but otherwise get wrong types
-                null, //no zero index
-                String.class,
-                String.class,
-                String.class,
-                String.class,
-                int.class,
-                String.class,
-                int.class,
-                String.class,
-                int.class,
-                int.class,
-                int.class,
-                String.class,
-                String.class,
-                int.class,
-                int.class,
-                int.class,
-                int.class,
-                String.class,
-                String.class,
-                String.class,
-                String.class,
-                short.class,
-                String.class,
-                String.class
-        };
+//        Class[] types = new Class[]{ //matches tableMetadata.getColumns() types. Ugly, but otherwise get wrong types
+//                null, //no zero index
+//                String.class,
+//                String.class,
+//                String.class,
+//                String.class,
+//                int.class,
+//                String.class,
+//                int.class,
+//                String.class,
+//                int.class,
+//                int.class,
+//                int.class,
+//                String.class,
+//                String.class,
+//                int.class,
+//                int.class,
+//                int.class,
+//                int.class,
+//                String.class,
+//                String.class,
+//                String.class,
+//                String.class,
+////                short.class,
+//                String.class,
+//                String.class,
+//                String.class
+//        };
+//        
+    	
+    	//Instead of manually populating the Class[] types, we interrogate the ResultSet Metadata.
+    	//This ensures that we get the right types and array size for the columns in this result set. 
+        int rsColCount = rs.getMetaData().getColumnCount();
+        
+    	Class [] types = new Class[rsColCount];
+        
+        for (int i=1; i < rsColCount ; i++){
+        	String className = rs.getMetaData().getColumnTypeName(i);
+        	
+        	if (className.toLowerCase().contains("string") ||
+        			className.toLowerCase().contains("varchar")){
+        		types[i]=String.class;
+        	} else if (className.toLowerCase().contains("int")) {
+        		types[i]=int.class;
+        	
+//        	} else if (className.toLowerCase().equals("smallint") ||
+//        			className.toLowerCase().equals("tinyint")) {
+//        		types[i] = short.class;
+        		
+        	} else {
+        		System.out.println("Unrecofgnized type: " + className);
+        	}
+        }
+        
+        //TODO: Fix this more elegantly.  Remove the hackety-hack.
+        //Get Class Cast Exception for String to Short if we don't manually set this.  Not sure why.
+        //This is the easiest way to work around it.
+        types[22] = String.class;
 
         Map<String, Object> data = new HashMap<String, Object>();
-        for (int i=1; i<= rs.getMetaData().getColumnCount(); i++) {
+        for (int i=1; i < rsColCount; i++) {
             Class classType = types[i];
             Object value;
             if (classType.equals(String.class)) {
