@@ -354,6 +354,10 @@ public class MockDatabase implements Database {
         return true;
     }
 
+    public boolean supportsCatalogInObjectName() {
+        return true;
+    }
+
     public String generatePrimaryKeyName(String tableName) {
         return "PK_"+tableName;
     }
@@ -527,5 +531,9 @@ public class MockDatabase implements Database {
             return true;
         }
         return false;
+    }
+
+    public int getDataTypeMaxParameters(String dataTypeName) {
+        return 2;
     }
 }

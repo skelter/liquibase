@@ -198,6 +198,8 @@ public interface Database extends DatabaseObject, PrioritizedService {
 
     boolean supportsSchemas();
 
+    boolean supportsCatalogInObjectName();
+
     String generatePrimaryKeyName(String tableName);
 
     String escapeSequenceName(String catalogName, String schemaName, String sequenceName);
@@ -283,4 +285,6 @@ public interface Database extends DatabaseObject, PrioritizedService {
     String getAssumedCatalogName(String catalogName, String schemaName);
 
     boolean isFunction(String string);
+
+    int getDataTypeMaxParameters(String dataTypeName);
 }
