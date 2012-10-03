@@ -18,12 +18,20 @@ import java.util.*;
      -databaseChangeLogTable
      -databaseChangeLogLockTable
    }
+   class Schema {
+     name
+   }
+
+   class SchemaSnapshot {
+     schema
+   }
    DatabaseSnapshot "1..*" *- "1" SchemaSnapshot
    (DatabaseSnapshot, SchemaSnapshot) .. Schema
-   class "Set<DatabaseObjects>" as DatabaseObjectSet
+   class "Set<DatabaseObject>" as DatabaseObjectSet
    SchemaSnapshot "1..*" *- "1" DatabaseObjectSet
    class "Class<? extends DatabaseObject>" as f <<T,#FF0000>>
    (SchemaSnapshot, DatabaseObjectSet) .. f
+   Schema -> Catalog
  @enduml
  */
 public class DatabaseSnapshot {
