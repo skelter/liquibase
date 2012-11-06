@@ -311,7 +311,24 @@ public abstract class JdbcDatabaseSnapshotGenerator implements DatabaseSnapshotG
 
         DataType type = new DataType(columnTypeName);
         type.setDataTypeId(dataType);
-        type.setColumnSize(columnSize);
+        
+        //TODO: Fix this the right way.  Temporarily addressing CORE-1220 & CORE-1226
+        //https://liquibase.jira.com/browse/CORE-1220
+        //https://liquibase.jira.com/browse/CORE-1226
+        //Pete Pickerill, Datical, Inc.
+        
+        if(!type.getTypeName().equalsIgnoreCase("longblob") &&
+        		!type.getTypeName().equalsIgnoreCase("mediumblob") &&
+        		!type.getTypeName().equalsIgnoreCase("tinyblob") &&
+        		!type.getTypeName().toLowerCase().startsWith("double") &&
+        		!type.getTypeName().equalsIgnoreCase("longtext") &&
+        		!type.getTypeName().equalsIgnoreCase("mediumtext") &&
+        		!type.getTypeName().equalsIgnoreCase("tinytext")){
+        	
+        	type.setColumnSize(columnSize);
+        	
+        }
+        
         type.setDecimalDigits(decimalDigits);
         type.setRadix(radix);
         type.setCharacterOctetLength(characterOctetLength);
