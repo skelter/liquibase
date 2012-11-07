@@ -688,7 +688,13 @@ public class DiffToChangeLog {
                 }
 
                 Object defaultValue = column.getDefaultValue();
-                if (defaultValue == null) {
+                
+            	//TODO: Fix this the right way.  Temporary Work Around For:
+            	//https://liquibase.jira.com/browse/CORE-1221
+            	//Pete Pickerill, Datical, Inc.
+                
+//                if (defaultValue == null) {
+                if (defaultValue == null || defaultValue.toString().equals("")) {
                     // do nothing
                 } else if (column.getType().isAutoIncrement()) {
                     // do nothing
@@ -699,7 +705,7 @@ public class DiffToChangeLog {
                 } else if (defaultValue instanceof Number) {
                     columnConfig.setDefaultValueNumeric(((Number) defaultValue));
                 } else if (defaultValue instanceof DatabaseFunction) {
-                    columnConfig.setDefaultValueComputed((DatabaseFunction) defaultValue);
+                	columnConfig.setDefaultValueComputed((DatabaseFunction) defaultValue);
                 } else {
                     columnConfig.setDefaultValue(defaultValue.toString());
                 }
