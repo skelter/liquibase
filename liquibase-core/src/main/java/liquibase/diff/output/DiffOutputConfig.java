@@ -5,9 +5,14 @@ public class DiffOutputConfig {
     private boolean includeCatalog;
     private boolean includeTablespace;
 
+    //TODO: Add logic to determine whether Catalog and Schema need to be set instead of always 
+    //returning 'true.' Currently setting it for all objects in generateChangeLog.  You have to 
+    //manually remove schema and catalog attributes if Change Log is used for a different 
+    //schema or catalog.
+    //Pete Pickerill, Datical, Inc.
     public DiffOutputConfig() {
-        includeSchema = true;
-        includeCatalog = true;
+        includeSchema = false;
+        includeCatalog = false;
         includeTablespace = true;
     }
 
