@@ -1,35 +1,32 @@
 package prototypetest;
 
+import org.apache.felix.framework.Felix;
 import org.junit.*;
-import prototype.OsgiTestBundle;
-import prototype.Session;
-import prototype.SimpleMemLogger;
+import prototypeutil.Session;
 
 import static junit.framework.Assert.*;
 
 public class BundleWithLoggingTest {
-    SimpleMemLogger logger = new SimpleMemLogger();
     private Session session;
 
     public BundleWithLoggingTest() {
-
+       Class felixName = Felix.class;
     }
 
     @Before
-    public void setUp() {
-      logger = new SimpleMemLogger();
-      session = OsgiTestBundle.create();
+    public void setUp() throws Exception {
+      session = new Session();
+      session.run();
     }
 
     @After
-    public void tearDown() {
-        logger = null;
+    public void tearDown() throws Exception {
         session.close();
     }
 
     @Test
     public void ourLogNotEmpty() {
-        assertFalse(logger.getEntries().isEmpty());
+        assertFalse(session.logResults().isEmpty());
     }
 
 }

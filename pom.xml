@@ -62,6 +62,7 @@
         <module>samples/liquibase-ext-changewithnestedtags</module>
         <module>samples/liquibase-ext-sqlgenerator</module>
         <module>liquibase-integration-tests</module>
+        <module>client-bundle</module>
         <module>liquibase-config-prototype</module>
     </modules>
 

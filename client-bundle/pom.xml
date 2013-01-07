@@ -2,9 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>liquibase-config-prototype</artifactId>
-    <name>Liquibase Configurable Prototype</name>
-    <description>Prototype to express the pain of spinning up Liquibase as a configurable component</description>
+    <artifactId>liquibase-config-prototype-client</artifactId>
+    <name>Liquibase Prototype Client Bundle</name>
+    <description>Prototype client-bundle to express the pain of spinning up Liquibase as a configurable component</description>
+    <packaging>bundle</packaging>
 
     <parent>
         <artifactId>liquibase-parent</artifactId>
@@ -13,21 +14,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <repositories>
-    </repositories>
-
 
     <dependencies>
+
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>1.4.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.framework</artifactId>
-            <version>1.4.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -37,19 +31,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymockclassextension</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
@@ -92,45 +73,9 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- JDBC drivers -->
-        <dependency>
-            <groupId>hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.shared</groupId>
-            <artifactId>maven-verifier</artifactId>
-        </dependency>
+
     </dependencies>
-    <profiles>
-        <profile>
-            <id>oracle</id>
-            <dependencies>
-                <dependency>
-                    <groupId>oracle</groupId>
-                    <artifactId>oracle-ojdbc14</artifactId>
-                    <version>10.2.0.2</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>buildServer</id>
-            <activation>
-                <property>
-                    <name>env.liquibase.buildserver</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <!--<properties>-->
-            <!--<liquibase.excludedTests>**/MavenIntegrationTest.java</liquibase.excludedTests>-->
-            <!--</properties>-->
-        </profile>
-    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -160,6 +105,28 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.1.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>LB Prototype Client</Bundle-Name>
+                        <Bundle-Activator>prototypeclient.OsgiLbClientBundleActivator</Bundle-Activator>
+
+                        <Import-Package>
+                            liquibase.*,
+                            org.osgi.framework,
+                            javax.*;resolution:=optional,
+                        </Import-Package>
+
+                        <DynamicImport-Package>net.sf.cglib.*</DynamicImport-Package>
+                        <!-- _include>src/main/resources/META-INF/MANIFEST.MF</_include -->
+                    </instructions>
                 </configuration>
             </plugin>
 

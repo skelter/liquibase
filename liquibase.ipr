@@ -55,6 +55,7 @@
   </component>
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/client-bundle" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/liquibase-config-prototype" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/liquibase-core" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/liquibase-integration-tests" charset="UTF-8" />
@@ -68,6 +69,7 @@
     <entry_points version="2.0" />
   </component>
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="Osmorc" url="file://$PROJECT_DIR$/client-bundle" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/liquibase-core" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/liquibase-osgi" />
   </component>
@@ -287,6 +289,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/liquibase.iml" filepath="$PROJECT_DIR$/liquibase.iml" />
       <module fileurl="file://$PROJECT_DIR$/liquibase-config-prototype/liquibase-config-prototype.iml" filepath="$PROJECT_DIR$/liquibase-config-prototype/liquibase-config-prototype.iml" />
+      <module fileurl="file://$PROJECT_DIR$/client-bundle/liquibase-config-prototype-client.iml" filepath="$PROJECT_DIR$/client-bundle/liquibase-config-prototype-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/liquibase-core/liquibase-core.iml" filepath="$PROJECT_DIR$/liquibase-core/liquibase-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/samples/liquibase-ext-change/liquibase-ext-change.iml" filepath="$PROJECT_DIR$/samples/liquibase-ext-change/liquibase-ext-change.iml" />
       <module fileurl="file://$PROJECT_DIR$/samples/liquibase-ext-changewithnestedtags/liquibase-ext-changewithnestedtags.iml" filepath="$PROJECT_DIR$/samples/liquibase-ext-changewithnestedtags/liquibase-ext-changewithnestedtags.iml" />
@@ -593,6 +596,28 @@
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/derby/derby/10.2.2.0/derby-10.2.2.0-sources.jar!/" />
       </SOURCES>
     </library>
+    <library name="Maven: org.apache.felix:org.apache.felix.framework:1.4.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.apache.felix.framework/1.4.0/org.apache.felix.framework-1.4.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.apache.felix.framework/1.4.0/org.apache.felix.framework-1.4.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.apache.felix.framework/1.4.0/org.apache.felix.framework-1.4.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.apache.felix:org.osgi.compendium:1.2.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.osgi.compendium/1.2.0/org.osgi.compendium-1.2.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.osgi.compendium/1.2.0/org.osgi.compendium-1.2.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.osgi.compendium/1.2.0/org.osgi.compendium-1.2.0-sources.jar!/" />
+      </SOURCES>
+    </library>
     <library name="Maven: org.apache.felix:org.osgi.core:1.4.0">
       <CLASSES>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.osgi.core/1.4.0/org.osgi.core-1.4.0.jar!/" />
@@ -602,6 +627,17 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.osgi.core/1.4.0/org.osgi.core-1.4.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.apache.felix:org.osgi.foundation:1.2.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.osgi.foundation/1.2.0/org.osgi.foundation-1.2.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.osgi.foundation/1.2.0/org.osgi.foundation-1.2.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/felix/org.osgi.foundation/1.2.0/org.osgi.foundation-1.2.0-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.maven.reporting:maven-reporting-api:2.0">
@@ -950,17 +986,6 @@
         <root url="jar://$MAVEN_REPOSITORY$/org/liquibase/liquibase-core/2.0-SNAPSHOT/liquibase-core-2.0-SNAPSHOT-tests-sources.jar!/" />
         <root url="jar://$MAVEN_REPOSITORY$/org/liquibase/liquibase-core/2.0-SNAPSHOT/liquibase-core-2.0-SNAPSHOT-tests-sources.jar!/" />
         <root url="jar://$MAVEN_REPOSITORY$/org/liquibase/liquibase-core/2.0-SNAPSHOT/liquibase-core-2.0-SNAPSHOT-tests-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.osgi:org.osgi.core:4.1.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/osgi/org.osgi.core/4.1.0/org.osgi.core-4.1.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/osgi/org.osgi.core/4.1.0/org.osgi.core-4.1.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/osgi/org.osgi.core/4.1.0/org.osgi.core-4.1.0-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.springframework:spring:2.0.6">
