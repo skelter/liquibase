@@ -4,6 +4,7 @@ import org.apache.felix.framework.Felix;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class Session {
 
     private Framework framework;
+    private File cacheDir = new File(System.getProperty("java.io.tmpdir"), "liquibase-prototype-felix-cache.d");
 
     public Session() throws BundleException {
         this.framework = initFramework();
@@ -58,7 +60,7 @@ public class Session {
                 // madness this way-> new File(m2repo, "org/osgi/org.osgi.core/4.1.0/org.osgi.core-4.1.0.jar"),//
                 //new File(m2repo, "org/apache/felix/org.osgi.compendium/1.2.0/org.osgi.compendium-1.2.0.jar"),//
                 //new File(m2repo, "org/apache/felix/org.osgi.foundation/1.2.0/org.osgi.foundation-1.2.0.jar"),//
-                //new File(m2repo, "org/apache/felix/org.apache.felix.framework/1.4.0/org.apache.felix.framework-1.4.0.jar"),
+                new File(m2repo, "org/apache/felix/org.apache.felix.framework/1.4.0/org.apache.felix.framework-1.4.0.jar"),
                 new File(curDir,"liquibase-osgi/target/liquibase-osgi-3.0.0-SNAPSHOT.jar"), //
                 new File(curDir,"client-bundle/target/liquibase-config-prototype-client-3.0.0-SNAPSHOT.jar"), //
         }        ;
@@ -88,7 +90,10 @@ public class Session {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         Map<String,String> sysProps = new HashMap(System.getProperties());
         config.putAll(sysProps);
-        config.put("org.osgi.framework.storage.clean","onFirstInit");
+        config.put(Constants.FRAMEWORK_STORAGE_CLEAN,Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
+        config.put("felix.cache.rootdir", cacheDir.getAbsolutePath());
+        config.put("org.osgi.framework.storage", cacheDir.getAbsolutePath());
+        config.put("felix.log.level","4");
 //        Framework framework = frameworkFactory.newFramework(config);
         Framework framework = new Felix(config);
         return framework;

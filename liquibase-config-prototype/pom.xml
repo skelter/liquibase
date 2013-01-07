@@ -19,6 +19,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>4.3.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>1.4.0</version>
@@ -27,7 +32,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
-            <version>1.4.0</version>
+            <version>4.0.3</version>
         </dependency>
 
         <dependency>
@@ -37,23 +42,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymockclassextension</artifactId>
-        </dependency>
 
-        <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.liquibase</groupId>
@@ -74,6 +63,7 @@
         <!--<version>2.0-SNAPSHOT</version>-->
         <!--</dependency>-->
         <!-- sample extensions -->
+        <!--
         <dependency>
             <groupId>org.liquibase.samples</groupId>
             <artifactId>liquibase-ext-change</artifactId>
@@ -92,7 +82,9 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        -->
         <!-- JDBC drivers -->
+        <!--
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
@@ -105,6 +97,7 @@
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-verifier</artifactId>
         </dependency>
+        -->
     </dependencies>
     <profiles>
         <profile>
@@ -165,16 +158,7 @@
 
         </plugins>
 
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <filtering>false</filtering>
-            </testResource>
-            <testResource>
-                <directory>src/test/filtered-resources</directory>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
+
     </build>
 
 
