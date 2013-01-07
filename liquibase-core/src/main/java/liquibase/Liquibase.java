@@ -51,13 +51,22 @@ public class Liquibase {
 
     private ChangeLogParameters changeLogParameters;
 
+    //TODO consider deprecating
     public Liquibase(String changeLogFile, ResourceAccessor resourceAccessor, DatabaseConnection conn) throws LiquibaseException {
         this(changeLogFile, resourceAccessor, DatabaseFactory.getInstance().findCorrectDatabaseImplementation(conn));
     }
 
+    //TODO consider deprecating
     public Liquibase(String changeLogFile, ResourceAccessor resourceAccessor, Database database) throws LiquibaseException {
-        log = LogFactory.getLogger();
+        this(changeLogFile, resourceAccessor, database, LogFactory.getLogger());
+    }
 
+    public Liquibase(String changeLogFile, ResourceAccessor resourceAccessor, DatabaseConnection conn, Logger givenLogger) throws LiquibaseException {
+        this(changeLogFile, resourceAccessor, DatabaseFactory.getInstance().findCorrectDatabaseImplementation(conn), givenLogger);
+    }
+
+    public Liquibase(String changeLogFile, ResourceAccessor resourceAccessor, Database database, Logger givenLogger) throws LiquibaseException {
+        this.log = givenLogger;
         if (changeLogFile != null) {
             this.changeLogFile = changeLogFile.replace('\\', '/');  //convert to standard / if usign absolute path on windows
         }

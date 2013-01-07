@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,6 +27,7 @@ public class Session {
 
     private Framework framework;
     private File cacheDir = new File(System.getProperty("java.io.tmpdir"), "liquibase-prototype-felix-cache.d");
+    public Object result;
 
     public Session() throws BundleException {
         this.framework = initFramework();
@@ -111,8 +113,9 @@ public class Session {
         framework.stop();
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> logResults() {
-        return null;
+        return (List<String>) result;
     }
 
     private Bundle findOurBundle() throws BundleException {
@@ -129,9 +132,12 @@ public class Session {
 //        ServiceReference ref = bundleContext.getServiceReference("liquibase.Liquibase");
 //        Liquibase lb = (Liquibase) bundleContext.getService(ref);
         try {
+            System.out.println("Loading client class...");
             Class cls = findOurBundle().loadClass("prototype.Util");
-            Runnable r = (Runnable) cls.newInstance();
-            r.run();
+            System.out.println("Running...");
+            Callable r = (Callable) cls.newInstance();
+            result = r.call();
+            System.out.println("Result: " + result);
         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }

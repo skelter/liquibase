@@ -26,8 +26,14 @@ public class LogFactory {
         return loggers.get(name);
     }
 
+    public static void setLogger(String name, Logger logger) {
+        loggers.put(name, logger);
+    }
+
     public static Logger getLogger() {
-        return getLogger("liquibase");
+        Logger liquibaseLogger = getLogger("liquibase");
+        System.out.println("LogFactory returning " + liquibaseLogger);
+        return liquibaseLogger;
     }
 
     public static void setLoggingLevel(String defaultLoggingLevel) {

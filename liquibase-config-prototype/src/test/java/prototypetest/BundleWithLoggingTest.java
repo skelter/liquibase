@@ -4,6 +4,8 @@ import org.apache.felix.framework.Felix;
 import org.junit.*;
 import prototypeutil.Session;
 
+import java.util.List;
+
 import static junit.framework.Assert.*;
 
 public class BundleWithLoggingTest {
@@ -26,7 +28,12 @@ public class BundleWithLoggingTest {
 
     @Test
     public void ourLogNotEmpty() {
-        assertFalse(session.logResults().isEmpty());
+        List<String> logs = session.logResults();
+        assertNotNull("No result was returned.", logs);
+        assertFalse("Logs should not be empty", logs.isEmpty());
+        for(String s : logs) {
+            System.out.println(s);
+        }
     }
 
 }
