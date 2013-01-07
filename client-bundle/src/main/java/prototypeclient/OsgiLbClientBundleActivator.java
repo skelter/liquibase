@@ -3,6 +3,10 @@ package prototypeclient;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.logging.LogFactory;
+import liquibase.osgi.OSGIPackageScanClassResolver;
+import liquibase.servicelocator.CustomResolverServiceLocator;
+import liquibase.servicelocator.PackageScanClassResolver;
+import liquibase.servicelocator.ServiceLocator;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.launch.Framework;
@@ -24,8 +28,9 @@ public class OsgiLbClientBundleActivator implements BundleActivator {
 
 
     public void start(BundleContext bundleContext) throws Exception {
-        SimpleMemLogger logger = new SimpleMemLogger();
-        try {
+        PackageScanClassResolver resolver = new OSGIPackageScanClassResolver(bundleContext.getBundle());
+
+        ServiceLocator.setInstance(new CustomResolverServiceLocator(resolver));        try {
           Liquibase lb = new Liquibase((String) null, null, (Database) null) ; // should cause lots of errors to be logged
         }
         catch (Throwable t) {
