@@ -1,7 +1,6 @@
 package liquibase.util;
 
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.logging.LogFactory;
 
 import java.io.InputStream;
 import java.security.DigestInputStream;

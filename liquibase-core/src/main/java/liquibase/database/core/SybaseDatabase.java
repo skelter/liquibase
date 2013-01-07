@@ -7,7 +7,6 @@ import liquibase.database.structure.Schema;
 import liquibase.exception.DatabaseException;
 import liquibase.executor.Executor;
 import liquibase.executor.ExecutorService;
-import liquibase.logging.LogFactory;
 import liquibase.statement.core.GetViewDefinitionStatement;
 
 import java.math.BigInteger;

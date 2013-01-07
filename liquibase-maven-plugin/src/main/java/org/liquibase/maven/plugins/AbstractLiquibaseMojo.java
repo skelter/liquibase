@@ -11,7 +11,6 @@ import java.util.*;
 
 import liquibase.*;
 import liquibase.integration.commandline.CommandLineUtils;
-import liquibase.logging.LogFactory;
 import liquibase.resource.CompositeResourceAccessor;
 import liquibase.resource.ResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;

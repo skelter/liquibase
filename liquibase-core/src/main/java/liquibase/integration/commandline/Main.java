@@ -38,9 +38,9 @@ import liquibase.exception.CommandLineParsingException;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.ValidationFailedException;
 import liquibase.lockservice.LockService;
-import liquibase.logging.LogFactory;
 import liquibase.logging.LogLevel;
 import liquibase.logging.Logger;
+import liquibase.logging.core.DefaultLogger;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.CompositeResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;
@@ -87,10 +87,12 @@ public class Main {
 
     protected String logLevel;
     protected String logFile;
+    protected Logger log;
 
     protected Map<String, Object> changeLogParameters = new HashMap<String, Object>();
 
     public static void main(String args[]) throws CommandLineParsingException, IOException {
+        Logger logger = new DefaultLogger();
         try {
             String shouldRunProperty = System.getProperty(Liquibase.SHOULD_RUN_SYSTEM_PROPERTY);
             if (shouldRunProperty != null && !Boolean.valueOf(shouldRunProperty)) {
@@ -147,8 +149,8 @@ public class Main {
                     ((ValidationFailedException) e.getCause()).printDescriptiveError(System.err);
                 } else {
                     System.err.println("Liquibase Update Failed: " + message);
-                    LogFactory.getLogger().severe(message, e);
-                    System.err.println(generateLogLevelWarningMessage());
+                    logger.severe(message, e);
+                    System.err.println(generateLogLevelWarningMessage(logger));
                 }
                 System.exit(-1);
             }
@@ -164,7 +166,7 @@ public class Main {
             String message = "Unexpected error running Liquibase: " + e.getMessage();
             System.err.println(message);
             try {
-                LogFactory.getLogger().severe(message, e);
+                logger.severe(message, e);
             } catch (Exception e1) {
                 e.printStackTrace();
             }
@@ -173,8 +175,7 @@ public class Main {
         System.exit(0);
     }
 
-    private static String generateLogLevelWarningMessage() {
-        Logger logger = LogFactory.getLogger();
+    private static String generateLogLevelWarningMessage(Logger logger) {
         if (logger == null || logger.getLogLevel() == null || (logger.getLogLevel().equals(LogLevel.DEBUG))) {
             return "";
         } else {
@@ -739,9 +740,9 @@ public class Main {
 
         try {
             if (null != logFile) {
-                LogFactory.getLogger().setLogLevel(logLevel, logFile);
+                log.setLogLevel(logLevel, logFile);
             } else {
-                LogFactory.getLogger().setLogLevel(logLevel);
+                log.setLogLevel(logLevel);
             }
         } catch (IllegalArgumentException e) {
             throw new CommandLineParsingException(e.getMessage(), e);
@@ -773,7 +774,7 @@ public class Main {
             }
 
 
-            Liquibase liquibase = new Liquibase(changeLogFile, fileOpener, database);
+            Liquibase liquibase = new Liquibase(changeLogFile, fileOpener, log, database);
             liquibase.setCurrentDateTimeFunction(currentDateTimeFunction);
             for (Map.Entry<String, Object> entry : changeLogParameters.entrySet()) {
                 liquibase.setChangeLogParameter(entry.getKey(), entry.getValue());
@@ -898,7 +899,7 @@ public class Main {
                 database.rollback();
                 database.close();
             } catch (DatabaseException e) {
-                LogFactory.getLogger().warning("problem closing connection", e);
+                log.warning("problem closing connection", e);
             }
         }
     }

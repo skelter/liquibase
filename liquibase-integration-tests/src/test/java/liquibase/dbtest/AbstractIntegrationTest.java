@@ -35,7 +35,6 @@ import liquibase.statement.core.DropTableStatement;
 import liquibase.test.JUnitResourceAccessor;
 import liquibase.test.TestContext;
 import liquibase.test.DatabaseTestContext;
-import liquibase.logging.LogFactory;
 
 import java.io.*;
 import java.net.URL;

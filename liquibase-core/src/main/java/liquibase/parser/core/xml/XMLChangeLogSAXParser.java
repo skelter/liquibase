@@ -9,7 +9,7 @@ import javax.xml.parsers.SAXParserFactory;
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.exception.ChangeLogParseException;
-import liquibase.logging.LogFactory;
+import liquibase.logging.Logger;
 import liquibase.parser.ChangeLogParser;
 import liquibase.resource.ResourceAccessor;
 import liquibase.util.file.FilenameUtils;
@@ -25,6 +25,7 @@ import org.xml.sax.XMLReader;
 public class XMLChangeLogSAXParser implements ChangeLogParser {
 
     private SAXParserFactory saxParserFactory;
+    private Logger log;
 
     public XMLChangeLogSAXParser() {
         saxParserFactory = SAXParserFactory.newInstance();
@@ -73,17 +74,17 @@ public class XMLChangeLogSAXParser implements ChangeLogParser {
             xmlReader.setEntityResolver(resolver);
             xmlReader.setErrorHandler(new ErrorHandler() {
                 public void warning(SAXParseException exception) throws SAXException {
-                    LogFactory.getLogger().warning(exception.getMessage());
+                    log.warning(exception.getMessage());
                     throw exception;
                 }
 
                 public void error(SAXParseException exception) throws SAXException {
-                    LogFactory.getLogger().severe(exception.getMessage());
+                    log.severe(exception.getMessage());
                     throw exception;
                 }
 
                 public void fatalError(SAXParseException exception) throws SAXException {
-                    LogFactory.getLogger().severe(exception.getMessage());
+                    log.severe(exception.getMessage());
                     throw exception;
                 }
             });

@@ -3,7 +3,7 @@ package liquibase.database;
 import liquibase.database.core.UnsupportedDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.logging.LogFactory;
+import liquibase.logging.Logger;
 import liquibase.servicelocator.ServiceLocator;
 
 import java.util.*;
@@ -11,8 +11,10 @@ import java.util.*;
 public class DatabaseFactory {
     private static DatabaseFactory instance;
     private List<Database> implementedDatabases = new ArrayList<Database>();
+    private Logger log;
 
-    protected DatabaseFactory() {
+    protected DatabaseFactory(Logger givenLogger) {
+        this.log = givenLogger;
         try {
             Class[] classes = ServiceLocator.getInstance().findClasses(Database.class);
 
@@ -27,15 +29,15 @@ public class DatabaseFactory {
 
     }
 
-    public static DatabaseFactory getInstance() {
+    public static DatabaseFactory getInstance(Logger givenLogger) {
         if (instance == null) {
-            instance = new DatabaseFactory();
+            instance = new DatabaseFactory(givenLogger);
         }
         return instance;
     }
 
-    public static void reset() {
-        instance = new DatabaseFactory();
+    public static void reset(Logger givenLogger) {
+        instance = new DatabaseFactory(givenLogger);
     }
 
     /**
@@ -64,7 +66,7 @@ public class DatabaseFactory {
         }
 
         if (foundDatabases.size() == 0) {
-            LogFactory.getLogger().warning("Unknown database: " + connection.getDatabaseProductName());
+            log.warning("Unknown database: " + connection.getDatabaseProductName());
             UnsupportedDatabase unsupportedDB = new UnsupportedDatabase();
             unsupportedDB.setConnection(connection);
             return unsupportedDB;

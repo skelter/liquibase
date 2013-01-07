@@ -8,7 +8,6 @@ import liquibase.diff.DiffResult;
 import liquibase.diff.output.DiffOutputConfig;
 import liquibase.diff.output.DiffToChangeLog;
 import liquibase.exception.DatabaseException;
-import liquibase.logging.LogFactory;
 import liquibase.util.StringUtils;
 import org.apache.tools.ant.BuildException;
 

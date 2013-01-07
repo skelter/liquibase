@@ -7,7 +7,6 @@ import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.exception.ChangeLogParseException;
 import liquibase.exception.UnsupportedChangeException;
-import liquibase.logging.LogFactory;
 import liquibase.parser.ChangeLogParser;
 import liquibase.resource.ResourceAccessor;
 import liquibase.util.StringUtils;
@@ -123,7 +122,7 @@ public class FormattedSqlChangeLogParser implements ChangeLogParser {
                     String context = parseString(contextPatternMatcher);
                     String dbms = parseString(dbmsPatternMatcher);
 
-                    changeSet = new ChangeSet(changeSetPatternMatcher.group(2), changeSetPatternMatcher.group(1), runAlways, runOnChange, physicalChangeLogLocation, context, dbms, runInTransaction);
+                    changeSet = new ChangeSet(changeSetPatternMatcher.group(2), changeSetPatternMatcher.group(1), runAlways, runOnChange, physicalChangeLogLocation, context, dbms, runInTransaction, log);
                     changeSet.setFailOnError(failOnError);
                     changeLog.addChangeSet(changeSet);
 

@@ -1,7 +1,6 @@
 package liquibase.snapshot.jvm;
 
 import liquibase.database.Database;
-import liquibase.database.core.MSSQLDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.database.core.InformixDatabase;
 import liquibase.database.core.OracleDatabase;
@@ -12,7 +11,6 @@ import liquibase.diff.DiffStatusListener;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.executor.ExecutorService;
-import liquibase.logging.LogFactory;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.DatabaseSnapshotGenerator;
 import liquibase.snapshot.DatabaseSnapshotGeneratorFactory;

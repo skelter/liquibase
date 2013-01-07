@@ -2,7 +2,6 @@ package prototype;
 
 import liquibase.Liquibase;
 import liquibase.database.Database;
-import liquibase.logging.LogFactory;
 
 /**
  * Created with IntelliJ IDEA.

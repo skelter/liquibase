@@ -12,7 +12,6 @@ import liquibase.diff.output.DiffOutputConfig;
 import liquibase.diff.output.DiffToChangeLog;
 import liquibase.diff.output.DiffToPrintStream;
 import liquibase.exception.*;
-import liquibase.logging.LogFactory;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.DatabaseSnapshotGeneratorFactory;
 import liquibase.util.StringUtils;

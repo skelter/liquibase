@@ -4,7 +4,7 @@ import org.xml.sax.InputSource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import liquibase.logging.LogFactory;
+
 import liquibase.logging.Logger;
 import liquibase.resource.ResourceAccessor;
 import liquibase.util.file.FilenameUtils;

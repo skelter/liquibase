@@ -19,7 +19,6 @@ import liquibase.executor.ExecutorService;
 import liquibase.executor.LoggingExecutor;
 import liquibase.lockservice.DatabaseChangeLogLock;
 import liquibase.lockservice.LockService;
-import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
 import liquibase.parser.ChangeLogParserFactory;
 import liquibase.resource.ResourceAccessor;
@@ -51,12 +50,12 @@ public class Liquibase {
 
     private ChangeLogParameters changeLogParameters;
 
-    public Liquibase(String changeLogFile, ResourceAccessor resourceAccessor, DatabaseConnection conn) throws LiquibaseException {
-        this(changeLogFile, resourceAccessor, DatabaseFactory.getInstance().findCorrectDatabaseImplementation(conn));
+    public Liquibase(String changeLogFile, ResourceAccessor resourceAccessor, Logger givenLogger, DatabaseConnection conn) throws LiquibaseException {
+        this(changeLogFile, resourceAccessor, givenLogger, DatabaseFactory.getInstance().findCorrectDatabaseImplementation(conn));
     }
 
-    public Liquibase(String changeLogFile, ResourceAccessor resourceAccessor, Database database) throws LiquibaseException {
-        log = LogFactory.getLogger();
+    public Liquibase(String changeLogFile, ResourceAccessor resourceAccessor, Logger givenLogger, Database database) throws LiquibaseException {
+        this.log = givenLogger;
 
         if (changeLogFile != null) {
             this.changeLogFile = changeLogFile.replace('\\', '/');  //convert to standard / if usign absolute path on windows

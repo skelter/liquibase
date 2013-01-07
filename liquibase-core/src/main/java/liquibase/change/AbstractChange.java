@@ -11,7 +11,6 @@ import liquibase.changelog.ChangeSet;
 import liquibase.database.Database;
 import liquibase.database.structure.DatabaseObject;
 import liquibase.exception.*;
-import liquibase.logging.LogFactory;
 import liquibase.resource.ResourceAccessor;
 import liquibase.serializer.core.string.StringChangeLogSerializer;
 import liquibase.sqlgenerator.SqlGeneratorFactory;

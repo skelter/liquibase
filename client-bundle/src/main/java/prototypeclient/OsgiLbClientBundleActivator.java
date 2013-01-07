@@ -2,16 +2,9 @@ package prototypeclient;
 
 import liquibase.Liquibase;
 import liquibase.database.Database;
-import liquibase.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.launch.Framework;
-import org.osgi.framework.launch.FrameworkFactory;
 import prototype.SimpleMemLogger;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
 
 /**
  * Created with IntelliJ IDEA.

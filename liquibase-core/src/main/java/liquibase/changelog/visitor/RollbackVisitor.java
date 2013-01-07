@@ -4,7 +4,6 @@ import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.Database;
 import liquibase.exception.LiquibaseException;
-import liquibase.logging.LogFactory;
 
 public class RollbackVisitor implements ChangeSetVisitor {
 

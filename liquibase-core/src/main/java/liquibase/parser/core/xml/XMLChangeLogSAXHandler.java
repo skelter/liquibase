@@ -45,7 +45,6 @@ import liquibase.changelog.DatabaseChangeLog;
 import liquibase.exception.CustomChangeException;
 import liquibase.exception.LiquibaseException;
 import liquibase.exception.MigrationFailedException;
-import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
 import liquibase.parser.ChangeLogParserFactory;
 import liquibase.precondition.CustomPreconditionWrapper;
@@ -244,7 +243,7 @@ class XMLChangeLogSAXHandler extends DefaultHandler {
 
 				changeSet = new ChangeSet(atts.getValue("id"), atts.getValue("author"), alwaysRun, runOnChange, filePath,
 						atts.getValue("context"), atts.getValue("dbms"),
-						Boolean.valueOf(atts.getValue("runInTransaction")));
+						Boolean.valueOf(atts.getValue("runInTransaction")), log);
 				if (StringUtils.trimToNull(atts.getValue("failOnError")) != null) {
 					changeSet.setFailOnError(Boolean.parseBoolean(atts.getValue("failOnError")));
 				}

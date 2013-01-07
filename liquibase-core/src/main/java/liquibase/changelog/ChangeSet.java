@@ -8,7 +8,6 @@ import liquibase.database.Database;
 import liquibase.exception.*;
 import liquibase.executor.Executor;
 import liquibase.executor.ExecutorService;
-import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
 import liquibase.precondition.Conditional;
 import liquibase.precondition.core.ErrorPrecondition;
@@ -161,13 +160,13 @@ public class ChangeSet implements Conditional {
         return runOnChange;
     }
 
-    public ChangeSet(String id, String author, boolean alwaysRun, boolean runOnChange, String filePath, String contextList, String dbmsList) {
-        this(id, author, alwaysRun, runOnChange, filePath, contextList, dbmsList, true);
+    public ChangeSet(String id, String author, boolean alwaysRun, boolean runOnChange, String filePath, String contextList, String dbmsList, Logger givenLogger) {
+        this(id, author, alwaysRun, runOnChange, filePath, contextList, dbmsList, true, givenLogger);
     }
 
-    public ChangeSet(String id, String author, boolean alwaysRun, boolean runOnChange, String filePath, String contextList, String dbmsList, boolean runInTransaction) {
+    public ChangeSet(String id, String author, boolean alwaysRun, boolean runOnChange, String filePath, String contextList, String dbmsList, boolean runInTransaction, Logger givenLogger) {
         this.changes = new ArrayList<Change>();
-        log = LogFactory.getLogger();
+        log = givenLogger;
         this.id = id;
         this.author = author;
         this.filePath = filePath;
@@ -262,7 +261,7 @@ public class ChangeSet implements Conditional {
                     skipChange = true;
                     execType = ExecType.SKIPPED;
 
-                    LogFactory.getLogger().info("Continuing past: " + toString() + " despite precondition failure due to onFail='CONTINUE': " + message);
+                   log.info("Continuing past: " + toString() + " despite precondition failure due to onFail='CONTINUE': " + message);
                 } else if (preconditions.getOnFail().equals(PreconditionContainer.FailOption.MARK_RAN)) {
                     execType = ExecType.MARK_RAN;
                     skipChange = true;

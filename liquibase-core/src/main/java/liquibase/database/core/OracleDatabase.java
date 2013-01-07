@@ -6,7 +6,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.database.structure.DatabaseObject;
 import liquibase.database.structure.Schema;
 import liquibase.exception.DatabaseException;
-import liquibase.logging.LogFactory;
+import liquibase.logging.Logger;
 import liquibase.statement.DatabaseFunction;
 
 import java.lang.reflect.Method;
@@ -26,7 +26,8 @@ public class OracleDatabase extends AbstractDatabase {
 
     private Set<String> reservedWords = new HashSet<String>();
 
-	public OracleDatabase() {
+	public OracleDatabase(Logger givenLogger) {
+        super(givenLogger);
 		// Setting list of Oracle's native functions
 		dateFunctions.add(new DatabaseFunction("SYSDATE"));
 		dateFunctions.add(new DatabaseFunction("SYSTIMESTAMP"));
@@ -55,7 +56,7 @@ public class OracleDatabase extends AbstractDatabase {
             reservedWords.addAll(Arrays.asList(sqlConn.getMetaData().getSQLKeywords().toUpperCase().split(",\\s*")));
             reservedWords.addAll(Arrays.asList("USER", "SESSION","RESOURCE")); //more reserved words not returned by driver
         } catch (Exception e) {
-            LogFactory.getLogger().info("Could not set remarks reporting on OracleDatabase: "+e.getMessage());
+            log.info("Could not set remarks reporting on OracleDatabase: " + e.getMessage());
             ; //cannot set it. That is OK
         }
         super.setConnection(conn);
@@ -124,7 +125,7 @@ public class OracleDatabase extends AbstractDatabase {
             resultSet.next();
             return resultSet.getString(1);
         } catch (Exception e) {
-            LogFactory.getLogger().info("Error getting default schema", e);
+            log.info("Error getting default schema", e);
         }
         return null;
     }

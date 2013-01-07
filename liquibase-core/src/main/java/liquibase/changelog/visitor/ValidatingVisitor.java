@@ -6,12 +6,9 @@ import liquibase.changelog.DatabaseChangeLog;
 import liquibase.changelog.RanChangeSet;
 import liquibase.database.Database;
 import liquibase.exception.*;
-import liquibase.logging.Logger;
-import liquibase.precondition.core.DBMSPrecondition;
 import liquibase.precondition.core.ErrorPrecondition;
 import liquibase.precondition.core.FailedPrecondition;
 import liquibase.precondition.core.PreconditionContainer;
-import liquibase.logging.LogFactory;
 import liquibase.util.StringUtils;
 
 import java.util.ArrayList;

@@ -4,11 +4,9 @@ import liquibase.database.AbstractDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.database.structure.DatabaseObject;
-import liquibase.database.structure.Index;
 import liquibase.database.structure.Schema;
 import liquibase.exception.DatabaseException;
 import liquibase.executor.ExecutorService;
-import liquibase.logging.LogFactory;
 import liquibase.statement.core.RawSqlStatement;
 
 import java.math.BigInteger;

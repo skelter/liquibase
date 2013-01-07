@@ -6,7 +6,6 @@ import liquibase.changelog.visitor.ValidatingVisitor;
 import liquibase.database.Database;
 import liquibase.exception.LiquibaseException;
 import liquibase.exception.ValidationFailedException;
-import liquibase.logging.LogFactory;
 import liquibase.precondition.Conditional;
 import liquibase.precondition.core.PreconditionContainer;
 

@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.logging.LogFactory;
 import liquibase.util.StringUtils;
 
 /**
