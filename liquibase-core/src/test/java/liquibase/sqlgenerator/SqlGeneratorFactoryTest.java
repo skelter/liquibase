@@ -132,7 +132,11 @@ public class SqlGeneratorFactoryTest {
                 return level;
             }
 
-            public boolean queriesDatabase(Database database) {
+            public boolean generateStatementsVolatile(Database database) {
+                return false;
+            }
+
+            public boolean generateRollbackStatementsVolatile(Database database) {
                 return false;
             }
 

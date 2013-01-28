@@ -1,12 +1,13 @@
 package liquibase.sqlgenerator.core;
 
+import liquibase.CatalogAndSchema;
 import liquibase.database.Database;
 import liquibase.database.core.*;
-import liquibase.database.structure.Schema;
+import liquibase.informix.sqlgenerator.core.InformixCreateViewGenerator;
+import liquibase.structure.core.Schema;
 import liquibase.exception.ValidationErrors;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
-import liquibase.sqlgenerator.SqlGenerator;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.statement.core.CreateViewStatement;
 
@@ -16,6 +17,11 @@ import java.util.List;
 public class CreateViewGenerator extends AbstractSqlGenerator<CreateViewStatement> {
 
     public ValidationErrors validate(CreateViewStatement createViewStatement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    	
+    	if (database instanceof InformixDatabase) {
+    		return new InformixCreateViewGenerator().validate(createViewStatement, database, sqlGeneratorChain);
+    	}
+    	
         ValidationErrors validationErrors = new ValidationErrors();
 
         validationErrors.checkRequiredField("viewName", createViewStatement.getViewName());
@@ -29,6 +35,11 @@ public class CreateViewGenerator extends AbstractSqlGenerator<CreateViewStatemen
     }
 
     public Sql[] generateSql(CreateViewStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    	
+    	if (database instanceof InformixDatabase) {
+    		return new InformixCreateViewGenerator().generateSql(statement, database, sqlGeneratorChain);
+    	}
+    	
         String createClause;
 
         List<Sql> sql = new ArrayList<Sql>();
@@ -47,9 +58,9 @@ public class CreateViewGenerator extends AbstractSqlGenerator<CreateViewStatemen
         } else if (database instanceof MSSQLDatabase) {
             if (statement.isReplaceIfExists()) {
                 //from http://stackoverflow.com/questions/163246/sql-server-equivalent-to-oracles-create-or-replace-view
-                Schema schema = database.correctSchema(new Schema(statement.getCatalogName(), statement.getSchemaName()));
-                sql.add(new UnparsedSql("IF NOT EXISTS (SELECT * FROM sys.views WHERE object_id = OBJECT_ID(N'["+ schema.getName() +"].["+statement.getViewName()+"]'))\n" +
-                        "    EXEC sp_executesql N'CREATE VIEW ["+schema.getName()+"].["+statement.getViewName()+"] AS SELECT ''This is a code stub which will be replaced by an Alter Statement'' as [code_stub]'"));
+                CatalogAndSchema schema = database.correctSchema(new CatalogAndSchema(statement.getCatalogName(), statement.getSchemaName()));
+                sql.add(new UnparsedSql("IF NOT EXISTS (SELECT * FROM sys.views WHERE object_id = OBJECT_ID(N'["+ schema.getSchemaName() +"].["+statement.getViewName()+"]'))\n" +
+                        "    EXEC sp_executesql N'CREATE VIEW ["+schema.getSchemaName()+"].["+statement.getViewName()+"] AS SELECT ''This is a code stub which will be replaced by an Alter Statement'' as [code_stub]'"));
                 createClause = "ALTER VIEW";
             } else {
                 createClause = "CREATE VIEW";

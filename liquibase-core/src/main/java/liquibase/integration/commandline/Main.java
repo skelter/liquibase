@@ -33,11 +33,12 @@ import java.util.jar.JarFile;
 import liquibase.Liquibase;
 import liquibase.change.CheckSum;
 import liquibase.database.Database;
-import liquibase.diff.output.DiffOutputConfig;
+import liquibase.diff.output.DiffOutputControl;
 import liquibase.exception.CommandLineParsingException;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.ValidationFailedException;
 import liquibase.lockservice.LockService;
+import liquibase.lockservice.LockServiceFactory;
 import liquibase.logging.LogFactory;
 import liquibase.logging.LogLevel;
 import liquibase.logging.Logger;
@@ -246,7 +247,8 @@ public class Main {
             if (commandParams.size() > 0 && commandParams.iterator().next().startsWith("-")) {
                 messages.add("unexpected command parameters: "+commandParams);
             }
-        } else if ("status".equalsIgnoreCase(command)) {
+        } else if ("status".equalsIgnoreCase(command)
+                || "unexpectedChangeSets".equalsIgnoreCase(command)) {
             if (commandParams.size() > 0 && !commandParams.iterator().next().equalsIgnoreCase("--verbose")) {
                 messages.add("unexpected command parameters: "+commandParams);
             }
@@ -331,6 +333,7 @@ public class Main {
                 || "dropAll".equalsIgnoreCase(arg)
                 || "releaseLocks".equalsIgnoreCase(arg)
                 || "status".equalsIgnoreCase(arg)
+                || "unexpectedChangeSets".equalsIgnoreCase(arg)
                 || "validate".equalsIgnoreCase(arg)
                 || "help".equalsIgnoreCase(arg)
                 || "diff".equalsIgnoreCase(arg)
@@ -466,6 +469,9 @@ public class Main {
         stream.println("Maintenance Commands");
         stream.println(" tag <tag string>          'Tags' the current database state for future rollback");
         stream.println(" status [--verbose]        Outputs count (list if --verbose) of unrun changesets");
+        stream.println(" unexpectedChangeSets [--verbose]");
+        stream.println("                           Outputs count (list if --verbose) of changesets run");
+        stream.println("                           in the database that do not exist in the changelog.");
         stream.println(" validate                  Checks changelog for errors");
         stream.println(" calculateCheckSum <id>    Calculates and prints a checksum for the changeset");
         stream.println("                           with the given id in the format filepath::id::author.");
@@ -759,16 +765,16 @@ public class Main {
             boolean includeCatalog = Boolean.parseBoolean(getCommandParam("includeCatalog", "false"));
             boolean includeSchema = Boolean.parseBoolean(getCommandParam("includeSchema", "false"));
             boolean includeTablespace = Boolean.parseBoolean(getCommandParam("includeTablespace", "false"));
-            DiffOutputConfig diffOutputConfig = new DiffOutputConfig(includeCatalog, includeSchema, includeTablespace);
+            DiffOutputControl diffOutputControl = new DiffOutputControl(includeCatalog, includeSchema, includeTablespace);
 
             if ("diff".equalsIgnoreCase(command)) {
                 CommandLineUtils.doDiff(createReferenceDatabaseFromCommandParams(commandParams), database);
                 return;
             } else if ("diffChangeLog".equalsIgnoreCase(command)) {
-                CommandLineUtils.doDiffToChangeLog(changeLogFile, createReferenceDatabaseFromCommandParams(commandParams), database, diffOutputConfig);
+                CommandLineUtils.doDiffToChangeLog(changeLogFile, createReferenceDatabaseFromCommandParams(commandParams), database, diffOutputControl);
                 return;
             } else if ("generateChangeLog".equalsIgnoreCase(command)) {
-                CommandLineUtils.doGenerateChangeLog(changeLogFile, database, defaultSchemaName, defaultCatalogName, StringUtils.trimToNull(diffTypes), StringUtils.trimToNull(changeSetAuthor), StringUtils.trimToNull(changeSetContext), StringUtils.trimToNull(dataOutputDirectory), diffOutputConfig);
+                CommandLineUtils.doGenerateChangeLog(changeLogFile, database, defaultSchemaName, defaultCatalogName, StringUtils.trimToNull(diffTypes), StringUtils.trimToNull(changeSetAuthor), StringUtils.trimToNull(changeSetContext), StringUtils.trimToNull(dataOutputDirectory), diffOutputControl);
                 return;
             }
 
@@ -783,7 +789,8 @@ public class Main {
                 liquibase.reportLocks(System.err);
                 return;
             } else if ("releaseLocks".equalsIgnoreCase(command)) {
-                LockService.getInstance(database).forceReleaseLock();
+                LockService lockService = LockServiceFactory.getInstance().getLockService(database);
+                lockService.forceReleaseLock();
                 System.err.println("Successfully released all database change log locks for " + liquibase.getDatabase().getConnection().getConnectionUserName() + "@" + liquibase.getDatabase().getConnection().getURL());
                 return;
             } else if ("tag".equalsIgnoreCase(command)) {
@@ -801,6 +808,14 @@ public class Main {
                     runVerbose = true;
                 }
                 liquibase.reportStatus(runVerbose, contexts, getOutputWriter());
+                return;
+            } else if ("unexpectedChangeSets".equalsIgnoreCase(command)) {
+                boolean runVerbose = false;
+
+                if (commandParams.contains("--verbose")) {
+                    runVerbose = true;
+                }
+                liquibase.reportUnexpectedChangeSets(runVerbose, contexts, getOutputWriter());
                 return;
             } else if ("validate".equalsIgnoreCase(command)) {
                 try {

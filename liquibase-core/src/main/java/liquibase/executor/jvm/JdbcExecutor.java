@@ -1,6 +1,5 @@
 package liquibase.executor.jvm;
 
-import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.PreparedStatementFactory;
 import liquibase.database.core.OracleDatabase;
@@ -10,19 +9,15 @@ import liquibase.executor.AbstractExecutor;
 import liquibase.executor.Executor;
 import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
-import liquibase.snapshot.jvm.JdbcDatabaseSnapshotGenerator;
 import liquibase.sql.visitor.SqlVisitor;
 import liquibase.statement.*;
 import liquibase.util.JdbcUtils;
 import liquibase.util.StringUtils;
-import liquibase.snapshot.DatabaseSnapshotGeneratorFactory;
 
-import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -216,7 +211,7 @@ public class JdbcExecutor extends AbstractExecutor implements Executor {
                 if (sqlToExecute.length != 1) {
                     throw new DatabaseException("Cannot call update on Statement that returns back multiple Sql objects");
                 }
-                log.debug("Executing UPDATE database command: "+sqlToExecute[0]);                
+                log.debug("Executing UPDATE database command: "+sqlToExecute[0]);
                 return stmt.executeUpdate(sqlToExecute[0]);
             }
 

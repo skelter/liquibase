@@ -115,6 +115,7 @@ public class ServiceLocator {
                 addPackageToScan("liquibase.executor");
                 addPackageToScan("liquibase.snapshot");
                 addPackageToScan("liquibase.logging");
+                addPackageToScan("liquibase.lockservice");
                 addPackageToScan("liquibase.ext");
             }
         }
@@ -154,7 +155,7 @@ public class ServiceLocator {
         return classes[0];
     }
 
-    public Class[] findClasses(Class requiredInterface) throws ServiceNotFoundException {
+    public <T> Class<? extends T>[] findClasses(Class<T> requiredInterface) throws ServiceNotFoundException {
         logger.debug("ServiceLocator.findClasses for "+requiredInterface.getName());
 
             try {

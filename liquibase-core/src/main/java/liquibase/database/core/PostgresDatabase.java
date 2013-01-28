@@ -1,23 +1,24 @@
 package liquibase.database.core;
 
-import liquibase.database.AbstractDatabase;
+import liquibase.CatalogAndSchema;
+import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.database.structure.DatabaseObject;
-import liquibase.database.structure.Index;
-import liquibase.database.structure.Schema;
+import liquibase.structure.DatabaseObject;
 import liquibase.exception.DatabaseException;
 import liquibase.executor.ExecutorService;
 import liquibase.logging.LogFactory;
 import liquibase.statement.core.RawSqlStatement;
+import liquibase.structure.core.Table;
 
 import java.math.BigInteger;
+import java.sql.Types;
 import java.util.*;
 
 /**
  * Encapsulates PostgreSQL database support.
  */
-public class PostgresDatabase extends AbstractDatabase {
+public class PostgresDatabase extends AbstractJdbcDatabase {
     public static final String PRODUCT_NAME = "PostgreSQL";
 
     private Set<String> systemTablesAndViews = new HashSet<String>();
@@ -28,7 +29,8 @@ public class PostgresDatabase extends AbstractDatabase {
 
     public PostgresDatabase() {
         reservedWords.addAll(Arrays.asList("USER", "LIKE", "GROUP", "DATE", "ALL"));
-
+        super.sequenceNextValueFunction = "NEXTVAL('%s')";
+        super.unmodifiableDataTypes.addAll(Arrays.asList("bool", "int4", "int8", "float4", "float8", "numeric", "bigserial", "serial", "bytea", "timestamptz"));
 //        systemTablesAndViews.add("pg_logdir_ls");
 //        systemTablesAndViews.add("administrable_role_authorizations");
 //        systemTablesAndViews.add("applicable_roles");
@@ -116,11 +118,6 @@ public class PostgresDatabase extends AbstractDatabase {
         return true;
     }
 
-    @Override
-    public String correctObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
-        return objectName.toLowerCase();
-    }
-
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return PRODUCT_NAME.equalsIgnoreCase(conn.getDatabaseProductName());
     }
@@ -146,7 +143,7 @@ public class PostgresDatabase extends AbstractDatabase {
         if (currentDateTimeFunction != null) {
             return currentDateTimeFunction;
         }
-        
+
         return "NOW()";
     }
 
@@ -160,7 +157,6 @@ public class PostgresDatabase extends AbstractDatabase {
         return super.getDatabaseChangeLogLockTableName().toLowerCase();
     }
 
-    
 
 //    public void dropDatabaseObjects(String schema) throws DatabaseException {
 //        try {
@@ -183,16 +179,19 @@ public class PostgresDatabase extends AbstractDatabase {
 
 
     @Override
-    public boolean isSystemTable(Schema schema, String tableName) {
-        schema = correctSchema(schema);
-        return super.isSystemTable(schema, tableName)
-                || "pg_catalog".equals(schema.getName())
-                || "pg_toast".equals(schema.getName())
-                || tableName.endsWith("_seq")
-                || tableName.endsWith("_key")
-                || tableName.endsWith("_pkey")
-                || tableName.startsWith("idx_")
-                || tableName.startsWith("pk_");
+    public boolean isSystemObject(DatabaseObject example) {
+        if (example instanceof Table) {
+            if ("pg_catalog".equals(example.getSchema().getName())
+                    || "pg_toast".equals(example.getSchema().getName())
+                    || example.getName().endsWith("_seq")
+                    || example.getName().endsWith("_key")
+                    || example.getName().endsWith("_pkey")
+                    || example.getName().startsWith("idx_")
+                    || example.getName().startsWith("pk_")) {
+                return true;
+            }
+        }
+        return super.isSystemObject(example);
     }
 
     public boolean supportsTablespaces() {
@@ -206,23 +205,23 @@ public class PostgresDatabase extends AbstractDatabase {
 
     @Override
     public boolean generateAutoIncrementStartWith(BigInteger startWith) {
-    	return false;
+        return false;
     }
 
     @Override
     public boolean generateAutoIncrementBy(BigInteger incrementBy) {
-    	return false;
+        return false;
     }
-    
+
     @Override
-    public String escapeDatabaseObject(String objectName, Class<? extends DatabaseObject> objectType) {
+    public String escapeObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
         if (objectName == null) {
             return null;
         }
         if (objectName.contains("-") || hasMixedCase(objectName) || startsWithNumeric(objectName) || isReservedWord(objectName)) {
             return "\"" + objectName + "\"";
         } else {
-            return super.escapeDatabaseObject(objectName, objectType);
+            return super.escapeObjectName(objectName, objectType);
         }
 
     }
@@ -289,13 +288,14 @@ public class PostgresDatabase extends AbstractDatabase {
         return searchPaths;
     }
 
+    @Override
+    protected String doGetDefaultSchemaName() {
+        return "public";
+    }
 
     private boolean catalogExists(String catalogName) throws DatabaseException {
-        if (catalogName != null) {
-            return runExistsQuery("select count(*) from information_schema.schemata where catalog_name='" + catalogName + "'");
-        } else {
-            return false;
-        }
+        return catalogName != null && runExistsQuery(
+                "select count(*) from information_schema.schemata where catalog_name='" + catalogName + "'");
     }
 
     private boolean schemaExists(String schemaName) throws DatabaseException {

@@ -2,7 +2,7 @@ package liquibase.change.core;
 
 import java.math.BigInteger;
 
-import liquibase.change.AbstractChangeTest;
+import liquibase.change.StandardChangeTest;
 import liquibase.change.Change;
 import liquibase.change.ColumnConfig;
 import liquibase.change.ConstraintsConfig;
@@ -20,7 +20,7 @@ import org.junit.Test;
 /**
  * Tests for {@link AddColumnChange}
  */
-public class AddColumnChangeTest extends AbstractChangeTest {
+public class AddColumnChangeTest extends StandardChangeTest {
 
 
     @Override
@@ -388,6 +388,41 @@ public class AddColumnChangeTest extends AbstractChangeTest {
                 assertEquals("TAB", ((DropColumnChange) changes[0]).getTableName());
                 assertEquals("NEWCOL", ((DropColumnChange) changes[0]).getColumnName());
 
+            }
+        });
+    }
+
+    @Test
+    public void createInverses_defaultValue() throws Exception {
+        AddColumnChange refactoring = new AddColumnChange();
+        refactoring.setSchemaName("SCHEMA");
+        refactoring.setTableName("TAB");
+        ColumnConfig column = new ColumnConfig();
+        column.setName("NEWCOL");
+        column.setType("TYP");
+        column.setDefaultValue("DEFAULT");
+
+        ConstraintsConfig constraints = new ConstraintsConfig();
+        constraints.setNullable(Boolean.FALSE);
+        constraints.setPrimaryKey(Boolean.TRUE);
+        column.setAutoIncrement(Boolean.TRUE);
+
+        column.setConstraints(constraints);
+
+        refactoring.addColumn(column);
+
+        testInverseOnAll(refactoring, new InverseValidator() {
+            public void validate(Change[] changes) {
+                assertEquals(2, changes.length);
+                assertTrue(changes[0] instanceof DropDefaultValueChange);
+                assertEquals("TAB", ((DropDefaultValueChange) changes[0]).getTableName());
+                assertEquals("NEWCOL", ((DropDefaultValueChange) changes[0]).getColumnName());
+                assertEquals("SCHEMA", ((DropDefaultValueChange) changes[0]).getSchemaName());
+
+                assertTrue(changes[1] instanceof DropColumnChange);
+                assertEquals("TAB", ((DropColumnChange) changes[1]).getTableName());
+                assertEquals("NEWCOL", ((DropColumnChange) changes[1]).getColumnName());
+                assertEquals("SCHEMA", ((DropColumnChange) changes[1]).getSchemaName());
             }
         });
     }

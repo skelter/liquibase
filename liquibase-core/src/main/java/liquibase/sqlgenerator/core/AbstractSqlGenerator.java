@@ -13,7 +13,11 @@ public abstract class AbstractSqlGenerator<StatementType extends SqlStatement> i
         return PRIORITY_DEFAULT;
     }
 
-    public boolean queriesDatabase(Database database) {
+    public boolean generateStatementsVolatile(Database database) {
+        return false;
+    }
+
+    public boolean generateRollbackStatementsVolatile(Database database) {
         return false;
     }
 

@@ -1,10 +1,12 @@
 package liquibase.datatype;
 
 import liquibase.database.Database;
-import liquibase.database.structure.DataType;
+import liquibase.datatype.core.BigIntType;
+import liquibase.datatype.core.IntType;
 import liquibase.datatype.core.UnknownType;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.servicelocator.ServiceLocator;
+import liquibase.structure.core.DataType;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtils;
 
@@ -17,7 +19,7 @@ public class DataTypeFactory {
 
     private Map<String, SortedSet<Class<? extends LiquibaseDataType>>> registry = new ConcurrentHashMap<String, SortedSet<Class<? extends LiquibaseDataType>>>();
 
-    private DataTypeFactory() {
+    protected DataTypeFactory() {
         Class<? extends LiquibaseDataType>[] classes;
         try {
             classes = ServiceLocator.getInstance().findClasses(LiquibaseDataType.class);
@@ -88,6 +90,11 @@ public class DataTypeFactory {
         if (dataTypeName.matches(".+\\{.*")) {
             dataTypeName = dataTypeDefinition.replaceFirst("\\s*\\{.*", "");
         }
+        boolean primaryKey = false;
+        if (dataTypeName.endsWith(" identity")) {
+            dataTypeName = dataTypeName.replaceFirst(" identity$", "");
+            primaryKey = true;
+        }
 
         SortedSet<Class<? extends LiquibaseDataType>> classes = registry.get(dataTypeName.toLowerCase());
 
@@ -118,12 +125,17 @@ public class DataTypeFactory {
             }
         }
 
+        /*
+        The block below seems logically incomplete.
+        It will always end up putting the second word after the entire type name
+        e.g. character varying will become CHARACTER VARYING varying
+
         //try to something like "int(11) unsigned" or int unsigned but not "varchar(11 bytes)"
         String lookingForAdditionalInfo = dataTypeDefinition;
         lookingForAdditionalInfo = lookingForAdditionalInfo.replaceFirst("\\(.*\\)", "");
         if (lookingForAdditionalInfo.contains(" ")) {
             liquibaseDataType.setAdditionalInformation(lookingForAdditionalInfo.split(" ", 2)[1]);
-        }
+        }*/
 
         if (dataTypeDefinition.matches(".*\\{.*")) {
             String paramStrings = dataTypeDefinition.replaceFirst(".*?\\{", "").replaceFirst("\\}.*", "");
@@ -141,6 +153,20 @@ public class DataTypeFactory {
             }
         }
 
+        if (primaryKey && liquibaseDataType instanceof IntType) {
+            ((IntType) liquibaseDataType).setAutoIncrement(true);
+        }
+        if (primaryKey && liquibaseDataType instanceof BigIntType) {
+            ((BigIntType) liquibaseDataType).setAutoIncrement(true);
+        }
+
+        if (primaryKey && liquibaseDataType instanceof IntType) {
+            ((IntType) liquibaseDataType).setAutoIncrement(true);
+        }
+        if (primaryKey && liquibaseDataType instanceof BigIntType) {
+            ((BigIntType) liquibaseDataType).setAutoIncrement(true);
+        }
+
         return liquibaseDataType;
 
     }
@@ -151,11 +177,11 @@ public class DataTypeFactory {
     }
 
     public LiquibaseDataType from(DataType type) {
-        return null; //todo
+        return fromDescription(type.toString());
     }
 
     public LiquibaseDataType from(DatabaseDataType type) {
-        return null; //todo
+        return fromDescription(type.toString());
     }
 
     public String getTrueBooleanValue(Database database) {

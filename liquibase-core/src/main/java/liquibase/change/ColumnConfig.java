@@ -6,8 +6,10 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 
-import liquibase.database.structure.Column;
+import liquibase.statement.SequenceFunction;
+import liquibase.structure.core.Column;
 import liquibase.statement.DatabaseFunction;
+import liquibase.structure.core.Table;
 import liquibase.util.ISODateFormat;
 
 /**
@@ -25,6 +27,7 @@ public class ColumnConfig {
     private String valueBlob;
     private String valueClob;
     private DatabaseFunction valueComputed;
+    private SequenceFunction valueSequenceNext;
 
     private String defaultValue;
     private Number defaultValueNumeric;
@@ -52,8 +55,10 @@ public class ColumnConfig {
         }
         ConstraintsConfig constraints = new ConstraintsConfig();
 		constraints.setNullable(columnStructure.isNullable());
-		constraints.setPrimaryKey(columnStructure.isPrimaryKey());
-		constraints.setUnique(columnStructure.isUnique());
+        if (columnStructure.getRelation() != null && columnStructure.getRelation() instanceof Table && ((Table) columnStructure.getRelation()).getPrimaryKey().getColumnNamesAsList().contains(columnStructure.getName())) {
+            constraints.setPrimaryKey(true);
+        }
+        constraints.setUnique(columnStructure.isUnique());
 		setConstraints(constraints);
     }
     
@@ -168,6 +173,14 @@ public class ColumnConfig {
         return this;
     }
 
+    public SequenceFunction getValueSequenceNext() {
+        return valueSequenceNext;
+    }
+
+    public void setValueSequenceNext(final SequenceFunction valueSequenceNext) {
+        this.valueSequenceNext = valueSequenceNext;
+    }
+
     public Date getValueDate() {
         return valueDate;
     }
@@ -204,6 +217,12 @@ public class ColumnConfig {
             return getValueDate();
         } else if (getValueComputed() != null) {
             return getValueComputed();
+        } else if (getValueClob() != null) {
+            return getValueClob();
+        } else if (getValueBlob() != null) {
+            return getValueBlob();
+        } else if (getValueSequenceNext() != null) {
+            return getValueSequenceNext();
         }
         return null;
     }

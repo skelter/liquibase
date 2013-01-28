@@ -7,10 +7,11 @@ import static org.junit.Assert.fail;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import liquibase.change.AbstractChangeTest;
+import liquibase.change.StandardChangeTest;
 import liquibase.change.AbstractSQLChange;
 import liquibase.change.Change;
 import liquibase.changelog.ChangeLogParameters;
+import liquibase.changelog.ChangeSet;
 import liquibase.database.Database;
 import liquibase.database.core.MockDatabase;
 import liquibase.database.core.OracleDatabase;
@@ -28,7 +29,7 @@ import org.junit.Test;
  * @author <a href="mailto:csuml@yahoo.co.uk">Paul Keeble</a>
  *
  */
-public class SQLFileChangeTest extends AbstractChangeTest {
+public class SQLFileChangeTest extends StandardChangeTest {
 	
 	private SQLFileChange change;
 	private String fileName;
@@ -42,7 +43,7 @@ public class SQLFileChangeTest extends AbstractChangeTest {
         ClassLoaderResourceAccessor opener = new ClassLoaderResourceAccessor();
         change.setResourceAccessor(opener);
         change.setPath(fileName);
-        change.init();
+        change.finishInitialization();
     }
 
     @Override
@@ -86,7 +87,7 @@ public class SQLFileChangeTest extends AbstractChangeTest {
     public void generateStatementFileNotFound() throws Exception {
         try {
             change.setPath("doesnotexist.sql");
-            change.init();
+            change.finishInitialization();
             change.generateStatements(new OracleDatabase());
             
             fail("The file does not exist so should not be found");
@@ -203,7 +204,9 @@ public class SQLFileChangeTest extends AbstractChangeTest {
       ChangeLogParameters changeLogParameters = new ChangeLogParameters();
       changeLogParameters.set("table.prefix", "prfx");
       changeLogParameters.set("some.other.prop", "nofx");
-      change.setChangeLogParameters(changeLogParameters);
+       ChangeSet changeSet = new ChangeSet("x", "y", true, true, null, null, null);
+       changeSet.setChangeLogParameters(changeLogParameters);
+       change.setChangeSet(changeSet);
       
       String fakeSql = "create ${table.prefix}_customer (${some.other.prop} INTEGER NOT NULL, PRIMARY KEY (${some.other.prop}));";
       

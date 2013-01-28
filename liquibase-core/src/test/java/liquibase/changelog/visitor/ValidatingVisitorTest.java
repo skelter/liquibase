@@ -8,10 +8,19 @@ import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.core.MockDatabase;
 import liquibase.exception.SetupException;
 import static org.junit.Assert.*;
+
+import liquibase.exception.UnsupportedChangeException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
+import liquibase.change.ChangeParameterMetaData;
+import liquibase.database.Database;
+import liquibase.exception.ValidationErrors;
+import liquibase.logging.LogFactory;
+import liquibase.sqlgenerator.SqlGeneratorFactory;
+import liquibase.statement.SqlStatement;
 
 public class ValidatingVisitorTest {
 
@@ -26,7 +35,7 @@ public class ValidatingVisitorTest {
 
 
     @Test
-    public void visit_successful() {
+    public void visit_successful() throws UnsupportedChangeException {
         CreateTableChange change1 = new CreateTableChange();
         change1.setTableName("table1");
         ColumnConfig column1 = new ColumnConfig();
@@ -53,10 +62,10 @@ public class ValidatingVisitorTest {
     }
 
     @Test
-    public void visit_setupException() {
+    public void visit_setupException() throws UnsupportedChangeException {
         changeSet1.addChange(new CreateTableChange() {
             @Override
-            public void init() throws SetupException {
+            public void finishInitialization() throws SetupException {
                 throw new SetupException("Test message");
             }
         });
@@ -71,7 +80,7 @@ public class ValidatingVisitorTest {
     }
 
     @Test
-    public void visit_duplicate() {
+    public void visit_duplicate() throws UnsupportedChangeException {
 
         ValidatingVisitor handler = new ValidatingVisitor(new ArrayList<RanChangeSet>());
         handler.visit(changeSet1, new DatabaseChangeLog(), null);
@@ -80,5 +89,49 @@ public class ValidatingVisitorTest {
         assertEquals(1, handler.getDuplicateChangeSets().size());
 
         assertFalse(handler.validationPassed());
+    }
+
+    @Test
+    public void visit_validateError() throws UnsupportedChangeException {
+
+        changeSet1.addChange(new CreateTableChange() {
+            @Override
+            public ValidationErrors validate(Database database) {
+                ValidationErrors changeValidationErrors = new ValidationErrors();
+                changeValidationErrors.addError("Test message");
+                return changeValidationErrors;
+            }
+        });
+
+        List<RanChangeSet> ran = new ArrayList<RanChangeSet>();
+        ValidatingVisitor handler = new ValidatingVisitor(ran);
+        handler.visit(changeSet1, new DatabaseChangeLog(), null);
+
+        assertEquals(1, handler.getValidationErrors().getErrorMessages().size());
+        assertTrue(handler.getValidationErrors().getErrorMessages().get(0).startsWith("Test message"));
+
+        assertFalse(handler.validationPassed());
+    }
+
+    @Test
+    public void visit_torunOnly() throws UnsupportedChangeException {
+
+        changeSet1.addChange(new CreateTableChange() {
+            @Override
+            public ValidationErrors validate(Database database) {
+                ValidationErrors changeValidationErrors = new ValidationErrors();
+                changeValidationErrors.addError("Test message");
+                return changeValidationErrors;
+            }
+        });
+
+        List<RanChangeSet> ran = new ArrayList<RanChangeSet>();
+        ran.add(new RanChangeSet(changeSet1));
+        ValidatingVisitor handler = new ValidatingVisitor(ran);
+        handler.visit(changeSet1, new DatabaseChangeLog(), null);
+
+        assertEquals(0, handler.getSetupExceptions().size());
+
+        assertTrue(handler.validationPassed());
     }
 }

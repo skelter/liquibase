@@ -251,7 +251,9 @@ class XMLChangeLogSAXHandler extends DefaultHandler {
                 if (StringUtils.trimToNull(atts.getValue("onValidationFail")) != null) {
                     changeSet.setOnValidationFail(ChangeSet.ValidationFailOption.valueOf(atts.getValue("onValidationFail")));
                 }
-			} else if (changeSet != null && "rollback".equals(qName)) {
+                changeSet.setChangeLogParameters(changeLogParameters);
+
+            } else if (changeSet != null && "rollback".equals(qName)) {
 				text = new StringBuffer();
 				String id = atts.getValue("changeSetId");
 				if (id != null) {
@@ -359,9 +361,8 @@ class XMLChangeLogSAXHandler extends DefaultHandler {
 					String attributeValue = atts.getValue(i);
 					setProperty(change, attributeName, attributeValue);
 				}
-				
-				change.setChangeLogParameters(this.changeLogParameters);
-				change.init();
+
+				change.finishInitialization();
 			} else if (change != null && "column".equals(qName)) {
 				ColumnConfig column;
 				if (change instanceof LoadDataChange) {
@@ -625,7 +626,15 @@ class XMLChangeLogSAXHandler extends DefaultHandler {
 					&& localName.equals(change.getChangeMetaData().getName())) {
 				if (textString != null) {
 					if (change instanceof RawSQLChange) {
-						((RawSQLChange) change).setSql(changeLogParameters.expandExpressions(textString));
+						// We've already expanded expressions when we defined 'textString' above. If we enabled
+						// escaping, we cannot re-expand; the now-literal variables in the text would get
+						// incorrectly expanded. If we haven't enabled escaping, then retain the current behavior.
+						String expandedExpression = textString;
+						
+						if (false == ChangeLogParameters.EnableEscaping) {
+							expandedExpression = changeLogParameters.expandExpressions(textString);
+						}
+						((RawSQLChange) change).setSql(expandedExpression);
 					} else if (change instanceof CreateProcedureChange) {
 						((CreateProcedureChange) change)
 								.setProcedureBody(textString);

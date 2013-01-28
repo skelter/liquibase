@@ -6,8 +6,6 @@ import liquibase.changelog.DatabaseChangeLog;
 import liquibase.changelog.RanChangeSet;
 import liquibase.database.Database;
 import liquibase.exception.*;
-import liquibase.logging.Logger;
-import liquibase.precondition.core.DBMSPrecondition;
 import liquibase.precondition.core.ErrorPrecondition;
 import liquibase.precondition.core.FailedPrecondition;
 import liquibase.precondition.core.PreconditionContainer;
@@ -16,6 +14,8 @@ import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 
@@ -32,11 +32,14 @@ public class ValidatingVisitor implements ChangeSetVisitor {
 
     private Set<String> seenChangeSets = new HashSet<String>();
 
-    private List<RanChangeSet> ranChangeSets;
+    private Map<String, RanChangeSet> ranIndex;
     private Database database;
 
     public ValidatingVisitor(List<RanChangeSet> ranChangeSets) {
-        this.ranChangeSets = ranChangeSets;
+        ranIndex = new HashMap<String, RanChangeSet>();
+        for(RanChangeSet changeSet:ranChangeSets) {
+            ranIndex.put(changeSet.toString(), changeSet);
+        }
     }
 
     public void validate(Database database, DatabaseChangeLog changeLog) {
@@ -55,7 +58,9 @@ public class ValidatingVisitor implements ChangeSetVisitor {
             errorPreconditions.addAll(e.getErrorPreconditions());
         } finally {
             try {
-                database.rollback();
+                if (database.getConnection() != null) {
+                    database.rollback();
+                }
             } catch (DatabaseException e) {
                 LogFactory.getLogger().warning("Error rolling back after precondition check", e);
             }
@@ -66,39 +71,42 @@ public class ValidatingVisitor implements ChangeSetVisitor {
         return ChangeSetVisitor.Direction.FORWARD;
     }
 
-    public void visit(ChangeSet changeSet, DatabaseChangeLog databaseChangeLog, Database database) {
+    public void visit(ChangeSet changeSet, DatabaseChangeLog databaseChangeLog, Database database) throws UnsupportedChangeException {
+        RanChangeSet ranChangeSet = ranIndex.get(changeSet.toString(false));
+        boolean ran = ranChangeSet != null;
+        boolean shouldValidate = !ran || changeSet.shouldRunOnChange() || changeSet.shouldAlwaysRun();
         for (Change change : changeSet.getChanges()) {
             try {
-                change.init();
+                change.finishInitialization();
             } catch (SetupException se) {
                 setupExceptions.add(se);
             }
+            
+            
+            if(shouldValidate){
+                warnings.addAll(change.warn(database));
+            
+                try {                
+                    ValidationErrors foundErrors = change.validate(database);
 
-            warnings.addAll(change.warn(database));
-
-            try {
-                ValidationErrors foundErrors = change.validate(database);
-                if (foundErrors != null && foundErrors.hasErrors()) {
-                    if (changeSet.getOnValidationFail().equals(ChangeSet.ValidationFailOption.MARK_RAN)) {
-                        LogFactory.getLogger().info("Skipping changeSet "+changeSet+" due to validation error(s): "+ StringUtils.join(foundErrors.getErrorMessages(), ", "));
-                        changeSet.setValidationFailed(true);
-                    } else {
-                        validationErrors.addAll(foundErrors, changeSet);
+                    if (foundErrors != null && foundErrors.hasErrors()) {
+                        if (changeSet.getOnValidationFail().equals(ChangeSet.ValidationFailOption.MARK_RAN)) {
+                            LogFactory.getLogger().info("Skipping changeSet "+changeSet+" due to validation error(s): "+ StringUtils.join(foundErrors.getErrorMessages(), ", "));
+                            changeSet.setValidationFailed(true);
+                        } else {
+                            validationErrors.addAll(foundErrors, changeSet);
+                        }
                     }
+                } catch (Throwable e) {
+                    changeValidationExceptions.add(e);
                 }
-            } catch (Throwable e) {
-                changeValidationExceptions.add(e);
             }
         }
 
-        for (RanChangeSet ranChangeSet : ranChangeSets) {
-            if (ranChangeSet.getId().equalsIgnoreCase(changeSet.getId())
-                    && ranChangeSet.getAuthor().equalsIgnoreCase(changeSet.getAuthor())
-                    && ranChangeSet.getChangeLog().equalsIgnoreCase(changeSet.getFilePath())) {
-                if (!changeSet.isCheckSumValid(ranChangeSet.getLastCheckSum())) {
-                    if (!changeSet.shouldRunOnChange()) {
-                        invalidMD5Sums.add(changeSet);
-                    }
+        if(ranChangeSet != null){
+            if (!changeSet.isCheckSumValid(ranChangeSet.getLastCheckSum())) {
+                if (!changeSet.shouldRunOnChange()) {
+                    invalidMD5Sums.add(changeSet);
                 }
             }
         }

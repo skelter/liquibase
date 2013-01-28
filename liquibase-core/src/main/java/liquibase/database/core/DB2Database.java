@@ -1,12 +1,13 @@
 package liquibase.database.core;
 
-import liquibase.database.AbstractDatabase;
+import liquibase.CatalogAndSchema;
+import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.database.structure.DatabaseObject;
-import liquibase.database.structure.Schema;
+import liquibase.structure.DatabaseObject;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.DateParseException;
+import liquibase.structure.core.Schema;
 import liquibase.util.JdbcUtils;
 
 import java.sql.ResultSet;
@@ -14,9 +15,13 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-public class DB2Database extends AbstractDatabase {
+public class DB2Database extends AbstractJdbcDatabase {
     private String defaultSchemaName;
 
+    public DB2Database() {
+        super.sequenceNextValueFunction = "nextval for %s";
+    }
+    
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return conn.getDatabaseProductName().startsWith("DB2");
     }
@@ -87,6 +92,9 @@ public class DB2Database extends AbstractDatabase {
 
     @Override
     public String correctObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
+        if (objectName == null) {
+            return null;
+        }
         return objectName.toUpperCase();
     }
 
@@ -149,7 +157,7 @@ public class DB2Database extends AbstractDatabase {
     }
 
     @Override
-    public String getViewDefinition(Schema schema, String name) throws DatabaseException {
+    public String getViewDefinition(CatalogAndSchema schema, String name) throws DatabaseException {
         return super.getViewDefinition(schema, name).replaceFirst("CREATE VIEW \\w+ AS ", ""); //db2 returns "create view....as select
     }
 
@@ -199,7 +207,23 @@ public class DB2Database extends AbstractDatabase {
     }
 
     @Override
-    public String getAssumedCatalogName(String catalogName, String schemaName) {
-        return schemaName;
+    public CatalogAndSchema getSchemaFromJdbcInfo(String rawCatalogName, String rawSchemaName) {
+        return this.correctSchema(new CatalogAndSchema(rawSchemaName, null));
     }
+
+    @Override
+    public String getJdbcCatalogName(CatalogAndSchema schema) {
+        return null;
+    }
+
+    @Override
+    public String getJdbcSchemaName(CatalogAndSchema schema) {
+        return schema.getCatalogName();
+    }
+
+    @Override
+    public boolean jdbcCallsCatalogsSchemas() {
+        return true;
+    }
+
 }

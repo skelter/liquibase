@@ -10,7 +10,7 @@ import liquibase.database.core.InformixDatabase;
 import liquibase.database.core.MSSQLDatabase;
 import liquibase.database.core.PostgresDatabase;
 import liquibase.database.core.SybaseASADatabase;
-import liquibase.database.structure.Index;
+import liquibase.structure.core.Index;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
@@ -50,8 +50,8 @@ public class CreateIndexGeneratorPostgres extends CreateIndexGenerator {
 	    buffer.append("INDEX ");
 
 	    if (statement.getIndexName() != null) {
-            String indexSchema = statement.getTableSchemaName();
-            buffer.append(database.escapeIndexName(null, indexSchema, statement.getIndexName())).append(" ");
+            // for postgres setting the schema name for the index name is invalid
+            buffer.append(database.escapeObjectName(statement.getIndexName(), Index.class)).append(" ");
 	    }
 	    buffer.append("ON ");
 	    buffer.append(database.escapeTableName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName())).append("(");

@@ -1,6 +1,9 @@
 target
 .project
 .settings
+*nb-configuration.xml
 .classpath
 liquibase.iws
 out
+bin
+liquibase.integrationtest.local.properties
