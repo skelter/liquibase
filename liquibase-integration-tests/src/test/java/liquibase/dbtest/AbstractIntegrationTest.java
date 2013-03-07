@@ -850,6 +850,17 @@ public abstract class AbstractIntegrationTest {
         assertNotNull(snapshot.hasTable(null, "bar_id", database));
         assertNotNull(snapshot.hasTable(null, "foo_id", database));
     }
+    
+    @Test
+    public void columnNamesWithParensAreEscaped() throws Exception {
+        Liquibase liquibase = createLiquibase("changelogs/common/columnNamesWithParens.changelog.xml");
+        liquibase.update(null);
+
+        DatabaseSnapshotGenerator snapshot = DatabaseSnapshotGeneratorFactory.getInstance().getGenerator(database);
+        assertNotNull(snapshot.hasTable(null, "address2", database));
+        assertNotNull(snapshot.hasColumn(null, "address2", "line2 (building)", database));
+    }
+    
 
 //   @Test
 //   public void testXMLInclude() throws Exception{
