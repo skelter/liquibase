@@ -964,7 +964,8 @@ public abstract class AbstractDatabase implements Database {
 
     public String escapeColumnName(String catalogName, String schemaName, String tableName, String columnName) {
         if (columnName.contains("(")) {
-            return columnName;
+          System.err.println("escapeColumnName: " + columnName);
+//            return columnName;
         }
 
         return escapeDatabaseObject(columnName, Column.class);
