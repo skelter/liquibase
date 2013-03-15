@@ -545,13 +545,13 @@ public abstract class JdbcDatabaseSnapshotGenerator implements DatabaseSnapshotG
                 } else if (type == Types.DATE) {
                     return new java.sql.Date(getDateFormat().parse(stringVal.trim()).getTime());
                 } else if (type == Types.DECIMAL) {
-                    try { new BigDecimal(stringVal.trim()); }
+                    try { return new BigDecimal(stringVal.trim()); }
                     catch (NumberFormatException ex) {
                       String message = "cannot create BigDecimal default value from string \"" + stringVal + "\" for column " + columnInfo;
                       log.warning(message);
+                      log.debug(message, ex);
                       return null;
                     }
-                    return new BigDecimal(stringVal.trim());
                 } else if (type == Types.DISTINCT) {
                     return new DatabaseFunction(stringVal);
                 } else if (type == Types.DOUBLE) {
