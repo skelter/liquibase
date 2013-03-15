@@ -6,13 +6,13 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.database.core.InformixDatabase;
 import liquibase.database.core.OracleDatabase;
 import liquibase.database.structure.*;
-import liquibase.database.structure.DataType;
 import liquibase.diff.DiffControl;
 import liquibase.diff.DiffStatusListener;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.executor.ExecutorService;
 import liquibase.logging.LogFactory;
+import liquibase.logging.Logger;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.DatabaseSnapshotGenerator;
 import liquibase.snapshot.DatabaseSnapshotGeneratorFactory;
@@ -508,7 +508,7 @@ public abstract class JdbcDatabaseSnapshotGenerator implements DatabaseSnapshotG
 
     protected Object readDefaultValue(Map<String, Object> columnMetadataResultSet, Column columnInfo, Database database) throws SQLException, DatabaseException {
         Object val = columnMetadataResultSet.get("COLUMN_DEF");
-
+        Logger log = LogFactory.getLogger();
         if (val instanceof String && val.equals("")) {
             return null;
         }
@@ -545,6 +545,12 @@ public abstract class JdbcDatabaseSnapshotGenerator implements DatabaseSnapshotG
                 } else if (type == Types.DATE) {
                     return new java.sql.Date(getDateFormat().parse(stringVal.trim()).getTime());
                 } else if (type == Types.DECIMAL) {
+                    try { new BigDecimal(stringVal.trim()); }
+                    catch (NumberFormatException ex) {
+                      String message = "cannot create BigDecimal default value from string \"" + stringVal + "\" for column " + columnInfo;
+                      log.warning(message);
+                      return null;
+                    }
                     return new BigDecimal(stringVal.trim());
                 } else if (type == Types.DISTINCT) {
                     return new DatabaseFunction(stringVal);
