@@ -4,3 +4,4 @@ target
 .classpath
 liquibase.iws
 out
+liquibase-integration-tests/src/test/resources/liquibase/liquibase.integrationtest.local.properties
