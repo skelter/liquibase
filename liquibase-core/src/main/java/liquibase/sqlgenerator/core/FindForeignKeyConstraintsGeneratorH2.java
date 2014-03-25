@@ -2,7 +2,6 @@ package liquibase.sqlgenerator.core;
 
 import liquibase.database.Database;
 import liquibase.database.core.H2Database;
-import liquibase.database.core.HsqlDatabase;
 import liquibase.exception.ValidationErrors;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
@@ -20,14 +19,16 @@ public class FindForeignKeyConstraintsGeneratorH2 extends AbstractSqlGenerator<F
 		return database instanceof H2Database;
 	}
 
-	public ValidationErrors validate(FindForeignKeyConstraintsStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+	@Override
+  public ValidationErrors validate(FindForeignKeyConstraintsStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
 		ValidationErrors validationErrors = new ValidationErrors();
 		validationErrors.checkRequiredField("baseTableName", statement.getBaseTableName());
 		return validationErrors;
 	}
 
 	
-	public Sql[] generateSql(FindForeignKeyConstraintsStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+	@Override
+  public Sql[] generateSql(FindForeignKeyConstraintsStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
 
 	 //https://github.com/jOOQ/jOOQ/issues/3042  this wasn't helpful but it lead me to come up with this:
    // SELECT * FROM INFORMATION_SCHEMA.CONSTRAINTS c join INFORMATION_SCHEMA.INDEXES i on  c.UNIQUE_INDEX_NAME=i.INDEX_NAME 
